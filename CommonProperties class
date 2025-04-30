@@ -1,0 +1,57 @@
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import java.util.*;
+
+public abstract class CommonProperties extends Application{
+	public abstract boolean buyable(); // checks whether user has enough money to buy the tower
+	public abstract void shootClosestEnemy(); // shows the shooting closest enemy and allows the tower to only shoot the closest enemy(/ies)
+	
+	public void showRange()
+	{
+		//shows the range of the tower while user is dragging it
+		
+		Circle circle = new Circle(100);
+		circle.setFill(Color.color(1, 0.6, 0.6, 0.8));
+		
+		Pane pane = new Pane();
+		pane.getChildren().add(circle);
+		
+	}
+	
+	public boolean isInRange(Circle circle, Point2D point)
+	{
+		//checks whether enemy is in range of the tower
+		
+		// point == enemies' position
+		
+		/*double deltaX = point.getX() - circle.getCenterX();
+		double deltaY = point.getY() - circle.getCenterY();
+		
+		double angleInRadians = Math.atan2(deltaY, deltaX);
+		double angleInDegrees = Math.toDegrees(angleInRadians);
+		
+		if(angleInDegrees < 0)
+			angleInDegrees += 360;*/
+		
+		double distance = Math.sqrt(Math.pow(point.getX() - circle.getCenterX(), 2) + Math.pow(point.getY() - circle.getCenterY(), 2));
+		
+		if(distance <= circle.getRadius())
+			return true;
+
+		else
+			return false;
+	}
+	
+	public boolean towerExists()
+	{
+		//checks whether a tower already exists on the point user wants to insert tower
+		return false;
+	}
+}
