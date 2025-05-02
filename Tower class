@@ -7,12 +7,19 @@ import javafx.scene.paint.*;
 import javafx.scene.control.*;
 import javafx.event.*;
 import javafx.geometry.*;
+import javafx.animation.*;
 import java.util.*;
 
-public abstract class CommonProperties extends Application{
+public abstract class Tower extends Group{
 	public abstract boolean buyable(); // checks whether user has enough money to buy the tower
-	public abstract void shootClosestEnemy(); // shows the shooting closest enemy and allows the tower to only shoot the closest enemy(/ies)
+	//public abstract void shootEnemy(Enemy enemy);// shoots the closest enemy and allows the tower to only one enemy at a time
 	
+	public Tower()
+	{
+		
+	}
+	
+	//shows the range of circle when user is dragging it
 	public void showRange()
 	{
 		//shows the range of the tower while user is dragging it
@@ -25,24 +32,18 @@ public abstract class CommonProperties extends Application{
 		
 	}
 	
-	public boolean isInRange(Circle circle, Point2D point)
+	//places the tower after the user dragges the tower
+	public void placeTower()
 	{
-		//checks whether enemy is in range of the tower
 		
-		// point == enemies' position
+	}
+	
+	//checks whether the enemy is in range of tower
+	public boolean isInRange(double towerX, double towerY, Enemy enemy, double radius)
+	{
+		double distance = Math.sqrt(Math.pow(enemy.getX() - towerX, 2) + Math.pow(enemy.getY() - towerY, 2));
 		
-		/*double deltaX = point.getX() - circle.getCenterX();
-		double deltaY = point.getY() - circle.getCenterY();
-		
-		double angleInRadians = Math.atan2(deltaY, deltaX);
-		double angleInDegrees = Math.toDegrees(angleInRadians);
-		
-		if(angleInDegrees < 0)
-			angleInDegrees += 360;*/
-		
-		double distance = Math.sqrt(Math.pow(point.getX() - circle.getCenterX(), 2) + Math.pow(point.getY() - circle.getCenterY(), 2));
-		
-		if(distance <= circle.getRadius())
+		if(distance <= radius)
 			return true;
 
 		else
@@ -54,4 +55,7 @@ public abstract class CommonProperties extends Application{
 		//checks whether a tower already exists on the point user wants to insert tower
 		return false;
 	}
+	
+	
+
 }
