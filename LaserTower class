@@ -1,0 +1,131 @@
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.util.Duration;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.animation.*;
+import java.util.*;
+
+public class LaserTower extends Tower{
+	private double towerX;
+	private double towerY;
+	private double rangeRadius;
+	private int price;
+	
+	public LaserTower() 
+	{
+		towerX = 0;
+		towerY = 0;
+		rangeRadius = 30;
+		price = 100;
+	}
+	
+	public LaserTower(double towerX, double towerY)
+	{
+		this.towerX = towerX;
+		this.towerY = towerY;
+		rangeRadius = 30;
+		price = 100;
+	}
+	
+	public ArrayList<Enemy> findEnemies(ArrayList<Enemy> enemies)
+	{
+		ArrayList<Enemy> enemiesInRange = new ArrayList<>();
+
+		for(int i = 0; i < enemies.size(); i++)
+		{
+			if(isInRange(towerX, towerY,(Enemy)(enemies.get(i)), rangeRadius))
+			{
+				enemiesInRange.add(enemies.get(i));
+			}
+		}
+		
+		if(enemiesInRange.isEmpty())
+			return null;
+		
+		return enemiesInRange;
+		
+	}
+	
+	public void shootEnemies(ArrayList<Enemy> enemies)
+	{
+		Timeline laserTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		{
+			if(!enemies.isEmpty())
+			{
+				for(Enemy enemy : enemies)
+				{
+					//i think there is a problem here
+					Laser laser = new Laser(towerX, towerY, enemy.getX(), enemy.getY());
+					if(enemy.isActive())
+						enemy.damage(5);
+				}
+			}
+			
+			
+		}));
+		
+		laserTimeline.setCycleCount(Timeline.INDEFINITE);
+		laserTimeline.play();
+	}
+	
+	ArrayList<Enemy> enemies = new ArrayList<>();
+	public void gameloop(Enemy enemy)
+	{
+		Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
+		
+		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), event ->
+		{
+			enemies = wave.getNextWave();
+			
+			for(Enemy eachEnemy : enemies)
+				eachEnemy.update(1);
+			
+			if(enemies == null)
+			{
+				System.out.println("enemies arraylist is null");
+				//what should we do if enemies is null??
+			}
+			
+			else
+			{
+				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()))
+				{
+					if(wave.hasMoreWaves())
+						enemies = wave.getNextWave();
+					else
+						System.out.println("All waves completed!");
+				}
+				
+				else
+				{
+					ArrayList<Enemy> enemiesInRange = findEnemies(enemies);
+					if(enemiesInRange != null)
+						shootEnemies(enemiesInRange);
+				}
+			}
+			
+				
+				
+		}));
+		
+		gameloop.setCycleCount(Timeline.INDEFINITE);
+		gameloop.play();
+
+	}
+	
+	
+	
+	@Override
+	public boolean buyable()
+	{
+		//if user has enough money, place the tower; if not, drag the tower but do not place it
+		return false;
+	}
+
+}
