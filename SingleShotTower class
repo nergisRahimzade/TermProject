@@ -1,0 +1,207 @@
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.util.Duration;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.animation.*;
+import java.util.*;
+
+public class SingleShotTower extends Tower{
+
+	private double towerX;
+	private double towerY;
+	private double rangeRadius;
+	private int price;
+	
+	public SingleShotTower()
+	{
+		towerX = 0;
+		towerY = 0;
+		rangeRadius = 30;
+		price = 50;
+	}
+	
+	public SingleShotTower(double towerX, double towerY)
+	{
+		this.towerX = towerX;
+		this.towerY = towerY;
+		rangeRadius = 30;
+		price = 50;
+	}
+	
+	public Enemy findEnemy(ArrayList<Enemy> enemies)
+	{
+		ArrayList<Enemy> enemiesInRange = new ArrayList<>();
+
+		for(int i = 0; i < enemies.size(); i++)
+		{
+			if(isInRange(towerX, towerY,(Enemy)(enemies.get(i)), rangeRadius))
+			{
+				enemiesInRange.add(enemies.get(i));
+			}
+		}
+		
+		if(enemiesInRange.isEmpty())
+			return null;
+		
+		double dxi = ((Enemy)(enemiesInRange.get(0))).getX() - towerX; //distance between x coordinates (initial)
+		double dyi = ((Enemy)(enemiesInRange.get(0))).getY() - towerY;//distance between y coordinates (initial)
+		double minDistance = Math.sqrt(dxi * dxi + dyi * dyi);
+		
+		for(int i = 1; i < enemiesInRange.size(); i++)
+		{
+			double dxf = ((Enemy)(enemiesInRange.get(i))).getX() - towerX;//distance between x coordinates (final)
+			double dyf = ((Enemy)(enemiesInRange.get(i))).getY() - towerY;//distance between y coordinates (final)
+			double distance = Math.sqrt(dxf * dxf + dyf * dyf);
+			
+			if(distance < minDistance)
+			{
+				minDistance = distance;
+				return (Enemy)(enemiesInRange.get(i));
+			}
+	
+			
+		}
+		return (Enemy)(enemiesInRange.get(0));
+		/*Enemy closest = enemies.get(0);
+		double minDistance = Math.sqrt((((Enemy)(enemies.get(0))).getX() - towerX) * (((Enemy)(enemies.get(0))).getX() - towerX) + 
+				(((Enemy)(enemies.get(0))).getY() - towerY) * (((Enemy)(enemies.get(0))).getY() - towerY)) ;;
+		
+		double distance = 0;
+		for(int i = 0; i < enemies.size(); i++)
+		{
+			distance = Math.sqrt((((Enemy)(enemies.get(i))).getX() - towerX) * (((Enemy)(enemies.get(i))).getX() - towerX) + 
+					(((Enemy)(enemies.get(i))).getY() - towerY) * (((Enemy)(enemies.get(i))).getY() - towerY)) ;
+			
+			if(distance < minDistance)
+			{
+				minDistance = distance;
+				closest = enemies.get(i);
+			}
+		}
+		
+		return closest;*/
+	}
+	
+	public void shootEnemy(Enemy enemy)
+	{
+		double startX = towerX;
+		double startY = towerY;
+		double targetX = enemy.getX();
+		double targetY = enemy.getY();
+		
+		Bullet bullet = new Bullet(startX, startY, targetX, targetY, 5);
+		
+		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		{
+			double dx = targetX - startX;
+			double dy = targetY - startY;
+			double distance = Math.sqrt(dx * dx + dy * dy);
+			
+			if(distance < 3)
+			{
+				if(enemy.getHealth() > 0)
+				{
+					enemy.damage(10);
+					//bullet.explosionEffect();
+					//bullet.setActive(false); --- ?
+				}
+			}
+			
+			else
+			{
+				double vx = dx / distance;
+				double vy = dy / distance;
+				
+				bullet.setEndX(bullet.getEndX() + vx * 5); // 5 = speed
+				bullet.setEndY(bullet.getEndY() + vy * 5); 
+				
+			}
+		}));
+		
+		
+		bulletTimeline.setCycleCount(Timeline.INDEFINITE);
+		bulletTimeline.play();
+		
+	}
+	
+
+	ArrayList<Enemy> currentEnemies = new ArrayList<>();
+	public void gameloop(Enemy enemy)
+	{	
+		Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
+		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		{	
+			
+				for(Enemy currentEnemy : currentEnemies)
+				{
+					currentEnemy.update(1);
+					//enemy.createEnemy(graphicsContext);
+				}
+				
+				if(currentEnemies.stream().allMatch(currentEnemy -> !currentEnemy.isActive() || currentEnemy.hasReachedEnd()))
+				{
+					if(wave.hasMoreWaves())
+					{
+						currentEnemies = wave.getNextWave();
+					}
+					else
+						System.out.println("All waves completed!");
+				}
+				
+				else
+				{
+					Enemy target = findEnemy(currentEnemies);
+					if(target != null && isInRange(towerX, towerY, target, rangeRadius))
+						shootEnemy(target);
+				}
+					
+						
+			
+			
+		}));
+		gameloop.setCycleCount(Timeline.INDEFINITE);
+		gameloop.play();
+		
+	}
+	
+	@Override
+	public boolean buyable()
+	{
+		//checks if the user has enough money to buy the tower
+		//if money is enough return true, else return false
+		return false;
+	}
+	
+	public double getTowerX() {
+		return towerX;
+	}
+
+	public void setTowerX(double towerX) {
+		this.towerX = towerX;
+	}
+
+	public double getTowerY() {
+		return towerY;
+	}
+
+	public void setTowerY(double towerY) {
+		this.towerY = towerY;
+	}
+
+	public double getRangeRadius() {
+		return rangeRadius;
+	}
+
+	public int getPrice() {
+		return price;
+	}
+
+	
+	
+}
