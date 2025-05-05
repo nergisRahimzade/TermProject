@@ -35,7 +35,7 @@ public class SingleShotTower extends Tower{
 	
 	//a constructor which only takes the coordinate values as parameters
 	//you might have noticed that there are no allowance of changing the price and rangeRadius properties and as you move on you will also see that there are no 
-	//setter methods for price and rangeRadius properties, the reason is they do not need to be changed and they will have constant valuesS
+	//setter methods for price and rangeRadius properties, the reason is they do not need to be changed and they will have constant values
 	public SingleShotTower(double towerX, double towerY)
 	{
 		this.towerX = towerX;
@@ -101,6 +101,8 @@ public class SingleShotTower extends Tower{
 		//creating a pane for animations
 		Pane pane = new Pane();
 		
+		pane.getChildren().addAll(bullet);
+		
 		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
 			double dx = targetX - startX;
@@ -132,7 +134,6 @@ public class SingleShotTower extends Tower{
 		bulletTimeline.setCycleCount(Timeline.INDEFINITE);
 		bulletTimeline.play();
 		
-		pane.getChildren().addAll(bullet);
 		return bullet;
 		
 		
@@ -145,6 +146,8 @@ public class SingleShotTower extends Tower{
 	public void gameloop(Enemy enemy) //A PROBLEM HERE - how can i create a gameloop class that does not take Enemy object as a parameter
 	{	
 		Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
+		currentEnemies = wave.getNextWave();
+		
 		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{	
 			if(currentEnemies != null)
