@@ -1,3 +1,5 @@
+//Nergiz Rahimzade 150124055
+//This class belongs to SingleShotTower and it's related methods, more details are given on the method/constructor(s)
 import javafx.application.*;
 import javafx.stage.*;
 import javafx.util.Duration;
@@ -12,12 +14,17 @@ import javafx.animation.*;
 import java.util.*;
 
 public class SingleShotTower extends Tower{
-
+	//coordinate properties of tower
 	private double towerX;
 	private double towerY;
+	
+	//radius of the range of the tower
 	private double rangeRadius;
+	
+	//price of the tower
 	private int price;
 	
+	//a default constructor for Single Shot Tower type
 	public SingleShotTower()
 	{
 		towerX = 0;
@@ -26,6 +33,9 @@ public class SingleShotTower extends Tower{
 		price = 50;
 	}
 	
+	//a constructor which only takes the coordinate values as parameters
+	//you might have noticed that there are no allowance of changing the price and rangeRadius properties and as you move on you will also see that there are no 
+	//setter methods for price and rangeRadius properties, the reason is they do not need to be changed and they will have constant valuesS
 	public SingleShotTower(double towerX, double towerY)
 	{
 		this.towerX = towerX;
@@ -34,6 +44,9 @@ public class SingleShotTower extends Tower{
 		price = 50;
 	}
 	
+	
+	//this method return one Enemy inside the range of the tower
+	//it takes an ArrayList as a parameter, this ArrayList represents the enemies of each wave
 	public Enemy findEnemy(ArrayList<Enemy> enemies)
 	{
 		ArrayList<Enemy> enemiesInRange = new ArrayList<>();
@@ -49,17 +62,20 @@ public class SingleShotTower extends Tower{
 		if(enemiesInRange.isEmpty())
 			return null;
 		
-		double dxi = ((Enemy)(enemiesInRange.get(0))).getX() - towerX; //distance between x coordinates (initial)
-		double dyi = ((Enemy)(enemiesInRange.get(0))).getY() - towerY;//distance between y coordinates (initial)
-		double minDistance = Math.sqrt(dxi * dxi + dyi * dyi);
+		double dxi = ((Enemy)(enemiesInRange.get(0))).getX() - towerX; 
+		double dyi = ((Enemy)(enemiesInRange.get(0))).getY() - towerY; 
+		double minDistance = Math.sqrt(dxi * dxi + dyi * dyi); /*assuming that the first element inside the enemiesInRange ArrayList 
+		                                                          is the closest enemy to the tower*/
 		
+		//calculating the distance between all the enemies in range and the tower
 		for(int i = 1; i < enemiesInRange.size(); i++)
 		{
-			double dxf = ((Enemy)(enemiesInRange.get(i))).getX() - towerX;//distance between x coordinates (final)
-			double dyf = ((Enemy)(enemiesInRange.get(i))).getY() - towerY;//distance between y coordinates (final)
+			double dxf = ((Enemy)(enemiesInRange.get(i))).getX() - towerX;
+			double dyf = ((Enemy)(enemiesInRange.get(i))).getY() - towerY;
 			double distance = Math.sqrt(dxf * dxf + dyf * dyf);
 			
-			if(distance < minDistance)
+			//if current enemies distance to the tower is less than minimum distance, setting minDistance as distance and returning the closest enemy to the tower
+			if((distance < minDistance) && ((Enemy)(enemiesInRange.get(i))).isActive())
 			{
 				minDistance = distance;
 				return (Enemy)(enemiesInRange.get(i));
@@ -68,34 +84,22 @@ public class SingleShotTower extends Tower{
 			
 		}
 		return (Enemy)(enemiesInRange.get(0));
-		/*Enemy closest = enemies.get(0);
-		double minDistance = Math.sqrt((((Enemy)(enemies.get(0))).getX() - towerX) * (((Enemy)(enemies.get(0))).getX() - towerX) + 
-				(((Enemy)(enemies.get(0))).getY() - towerY) * (((Enemy)(enemies.get(0))).getY() - towerY)) ;;
 		
-		double distance = 0;
-		for(int i = 0; i < enemies.size(); i++)
-		{
-			distance = Math.sqrt((((Enemy)(enemies.get(i))).getX() - towerX) * (((Enemy)(enemies.get(i))).getX() - towerX) + 
-					(((Enemy)(enemies.get(i))).getY() - towerY) * (((Enemy)(enemies.get(i))).getY() - towerY)) ;
-			
-			if(distance < minDistance)
-			{
-				minDistance = distance;
-				closest = enemies.get(i);
-			}
-		}
-		
-		return closest;*/
 	}
 	
-	public void shootEnemy(Enemy enemy)
+	//this method shoots the nearest enemy to the tower position
+	public Node shootEnemy(Enemy enemy)
 	{
 		double startX = towerX;
 		double startY = towerY;
 		double targetX = enemy.getX();
 		double targetY = enemy.getY();
 		
+		//creating a bullet object for Single Shot Tower
 		Bullet bullet = new Bullet(startX, startY, targetX, targetY, 5);
+		
+		//creating a pane for animations
+		Pane pane = new Pane();
 		
 		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
@@ -103,17 +107,17 @@ public class SingleShotTower extends Tower{
 			double dy = targetY - startY;
 			double distance = Math.sqrt(dx * dx + dy * dy);
 			
-			if(distance < 3)
+			//if the bullet hits the enemy (3 is the number of pixels of threshold/offset) and the enemy is alive - we already gave the Enemy parameter that is
+			//in range of tower -, give a damage magnitude 10 to the enemy
+			if(distance < 3 && enemy != null && enemy.isActive())
 			{
-				if(enemy.getHealth() > 0)
-				{
 					enemy.damage(10);
 					//bullet.explosionEffect();
-					//bullet.setActive(false); --- ?
-				}
 			}
 			
-			else
+			//if bullet's distance to the tower is more than or equal to 3 and it is still alive, that means enemy is still on its' way towards the tower
+			//so we move the bullet using a little math
+			else if(enemy.isActive())
 			{
 				double vx = dx / distance;
 				double vy = dy / distance;
@@ -128,22 +132,32 @@ public class SingleShotTower extends Tower{
 		bulletTimeline.setCycleCount(Timeline.INDEFINITE);
 		bulletTimeline.play();
 		
+		pane.getChildren().addAll(bullet);
+		return bullet;
+		
+		
+		
 	}
 	
-
+	//FIND OUT HOW TO MAKE THE WAVE CLASS VISIBLE
+	//creates a kind of a loop that will show the bullets and the enemy wave
 	ArrayList<Enemy> currentEnemies = new ArrayList<>();
-	public void gameloop(Enemy enemy)
+	public void gameloop(Enemy enemy) //A PROBLEM HERE - how can i create a gameloop class that does not take Enemy object as a parameter
 	{	
 		Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
 		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{	
-			
+			if(currentEnemies != null)
+			{
+				//updates the coordinates of each enemy every 16 milliseconds
 				for(Enemy currentEnemy : currentEnemies)
 				{
 					currentEnemy.update(1);
 					//enemy.createEnemy(graphicsContext);
 				}
 				
+				//if all Enemys inside currentEnemies ArrayList is either dead or has reached the end of the map - if there are still waves left -> 
+				//-> make currentEnemies as the next wave of enemies
 				if(currentEnemies.stream().allMatch(currentEnemy -> !currentEnemy.isActive() || currentEnemy.hasReachedEnd()))
 				{
 					if(wave.hasMoreWaves())
@@ -154,30 +168,36 @@ public class SingleShotTower extends Tower{
 						System.out.println("All waves completed!");
 				}
 				
+				//if there are still either alive enemies or enemies that hasn't reached end -> find the closest enemy with findEnemy method , 
+				//if target is not null and is in range -> shoot the enemy with shootEnemy method
 				else
 				{
 					Enemy target = findEnemy(currentEnemies);
 					if(target != null && isInRange(towerX, towerY, target, rangeRadius))
 						shootEnemy(target);
 				}
+			}
 					
 						
 			
 			
 		}));
+		
+		//play the animation
 		gameloop.setCycleCount(Timeline.INDEFINITE);
 		gameloop.play();
 		
 	}
 	
+	//checks if the user has enough money to buy the tower
+			//if money is enough return true, else return false
 	@Override
 	public boolean buyable()
 	{
-		//checks if the user has enough money to buy the tower
-		//if money is enough return true, else return false
 		return false;
 	}
 	
+	//General getter and setter methods
 	public double getTowerX() {
 		return towerX;
 	}
