@@ -1,0 +1,182 @@
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.util.Duration;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.animation.*;
+import java.util.*;
+
+public class TripleShotTower extends Tower{
+	private double towerX;
+	private double towerY;
+	private double rangeRadius;
+	private int price;
+	
+	public TripleShotTower()
+	{
+		towerX = 0;
+		towerY = 0;
+		rangeRadius = 30;
+		price = 150;
+	}
+	
+	public TripleShotTower(double towerX, double towerY)
+	{
+		this.towerX = towerX;
+		this.towerY = towerY;
+		rangeRadius = 30;
+		price = 150;
+	}
+	
+	public ArrayList<Enemy> findEnemies(ArrayList<Enemy> enemies)
+	{
+		ArrayList<Enemy> enemiesInRange = new ArrayList<>();
+		int count = 0;
+
+		for(int i = 0; i < enemies.size(); i++)
+		{
+			if(isInRange(towerX, towerY,(Enemy)(enemies.get(i)), rangeRadius))
+			{
+				enemiesInRange.add(enemies.get(i));
+				count++;
+			}
+			
+			if(count == 3)
+				break;
+		}
+		
+		if(enemiesInRange.isEmpty())
+			return null;
+		
+		return enemiesInRange;
+		
+	}
+	
+	public List<Node> shootEnemies(ArrayList<Enemy> enemies)
+	{
+		
+		List<Node> list = new ArrayList<>();
+		double startX = towerX;
+		double startY = towerY;
+		
+		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		{
+			if(!enemies.isEmpty())
+			{
+				for(Enemy enemy : enemies)
+				{
+					double targetX = enemy.getX();
+					double targetY = enemy.getY();
+					Bullet bullet = new Bullet(startX, startY, targetX, targetY, 5);
+					
+					double dx = targetX - startX;
+					double dy = targetY - startY;
+					
+					double distance = Math.sqrt(dx * dx + dy *dy);
+					
+					if(enemy.isActive() && distance < 3 && enemy != null)
+					{
+						enemy.damage(15);
+						list.add(bullet);
+					}
+					
+					else
+					{
+						double vx = dx / distance;
+						double vy = dy / distance;
+						
+						bullet.setEndX(bullet.getEndX() + vx * 5); // 5 = speed
+						bullet.setEndY(bullet.getEndY() + vy * 5);
+					}
+					
+				}
+			}
+			
+		}));
+		
+		bulletTimeline.setCycleCount(Timeline.INDEFINITE);
+		bulletTimeline.play();
+		
+		return list;
+	}
+	
+	
+	ArrayList<Enemy> enemies = new ArrayList<>();
+	public void gameloop(Enemy enemy)
+	{
+		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), event ->
+		{
+			
+			Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
+			
+			enemies = wave.getNextWave();
+			
+			if(enemies != null)
+			{
+				for(Enemy eachEnemy : enemies)
+					eachEnemy.update(1);
+
+				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()))// && the user still has enough lives
+				{
+					if(wave.hasMoreWaves())
+						enemies = wave.getNextWave();
+					else
+						System.out.println("All waves completed!");
+				}
+				
+				else
+				{
+					ArrayList<Enemy> currentEnemies = findEnemies(enemies);
+					if(currentEnemies != null)
+						shootEnemies(currentEnemies);
+				}
+			}
+			
+			
+		}));
+		
+		gameloop.setCycleCount(Timeline.INDEFINITE);
+		gameloop.play();
+	}
+	
+	
+	@Override
+	public boolean buyable()
+	{
+		//check if the user's money is enough to buy the tower, if it is
+		//return true, if not return false
+		return false;
+	}
+	
+	public double getX() {
+		return towerX;
+	}
+
+	public void setX(double towerX) {
+		this.towerX = towerX;
+	}
+
+	public double getY() {
+		return towerY;
+	}
+
+	public void setsY(double towerY) {
+		this.towerY = towerY;
+	}
+	
+	public double getRangeRadius()
+	{
+		return rangeRadius;
+	}
+	
+	public int getPrice()
+	{
+		return price;
+	}
+
+}
