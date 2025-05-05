@@ -1,3 +1,6 @@
+//Nergiz Rahimzade 150124055
+//This class belongs to Laser Tower and contains it's related method(s)/constructor(s)/properties 
+//Details about methods are given above them and inside methods if needed
 import javafx.application.*;
 import javafx.stage.*;
 import javafx.util.Duration;
@@ -12,27 +15,39 @@ import javafx.animation.*;
 import java.util.*;
 
 public class LaserTower extends Tower{
+	//coordinate properties of towers
 	private double towerX;
 	private double towerY;
+	
+	//radius of the range of the tower
 	private double rangeRadius;
+	
+	//price of the tower
 	private int price;
 	
+	//a default constructor with given default values
 	public LaserTower() 
 	{
 		towerX = 0;
 		towerY = 0;
 		rangeRadius = 30;
-		price = 100;
+		price = 120;
 	}
 	
+	//a constructor which only takes the coordinate values as parameters
+	//you might have noticed that there are no allowance of changing the price and rangeRadius properties and as you move on you will also see that there are no 
+	//setter methods for price and rangeRadius properties, the reason is they do not need to be changed and they will have constant values
 	public LaserTower(double towerX, double towerY)
 	{
 		this.towerX = towerX;
 		this.towerY = towerY;
 		rangeRadius = 30;
-		price = 100;
+		price = 120;
 	}
 	
+	
+	//this method returns an ArrayList of Enemies inside the range of the tower 
+	//it takes the enemy waves as ArrayList and finds the enemies inside range
 	public ArrayList<Enemy> findEnemies(ArrayList<Enemy> enemies)
 	{
 		ArrayList<Enemy> enemiesInRange = new ArrayList<>();
@@ -52,28 +67,51 @@ public class LaserTower extends Tower{
 		
 	}
 	
-	public void shootEnemies(ArrayList<Enemy> enemies)
+	//this method shoots the enemies within range with lasers and returns the Laser objects as a List in Node type,
+	//it takes the enemiesInRange from findEnemies method as an argument
+	// lasers are returned in Node type for them to be able to added to Pane
+	public List<Node> shootEnemies(ArrayList<Enemy> enemies)
 	{
+		List<Node> list = new ArrayList<>();
+		
+		//Pane created to add the Laser objects and make them visible on Scene
+		Pane pane = new Pane();
+		
+		//a Timeline object is created to make an animation of several or single Lasers being shot
 		Timeline laserTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
 			if(!enemies.isEmpty())
 			{
+				//if there are enemies inside range, update their location every 16 milliseconds
 				for(Enemy enemy : enemies)
 				{
 					//i think there is a problem here
 					Laser laser = new Laser(towerX, towerY, enemy.getX(), enemy.getY());
+					pane.getChildren().add(laser);
+					
+					//if enemy is alive, give a damage of magnitude 5 and add the laser created to the ArrayList
+					//notice that the damage LaserTower gives is less than SingleShotTower
 					if(enemy.isActive())
+					{
 						enemy.damage(5);
+						list.add(laser);
+					}
 				}
 			}
 			
 			
 		}));
 		
+		
+		//play the animation
 		laserTimeline.setCycleCount(Timeline.INDEFINITE);
 		laserTimeline.play();
+		
+		return list;
 	}
 	
+	
+	//this method is created to make the enemy Waves visible and check the enemies every 16 milliseconds
 	ArrayList<Enemy> enemies = new ArrayList<>();
 	public void gameloop(Enemy enemy)
 	{
@@ -81,20 +119,17 @@ public class LaserTower extends Tower{
 		
 		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), event ->
 		{
-			enemies = wave.getNextWave();
+			enemies = wave.getNextWave();		
 			
-			for(Enemy eachEnemy : enemies)
-				eachEnemy.update(1);
-			
-			if(enemies == null)
+			if(enemies != null)
 			{
-				System.out.println("enemies arraylist is null");
-				//what should we do if enemies is null??
-			}
-			
-			else
-			{
-				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()))
+				//if enemies are not null, update each enemies inside location
+				for(Enemy eachEnemy : enemies)
+					eachEnemy.update(1);
+				
+				//if all Enemys inside enemies ArrayList is either dead or has reached end -> if there are still some waves left 
+				//-> give the next Enemy wave
+				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd())) // && the user has still life
 				{
 					if(wave.hasMoreWaves())
 						enemies = wave.getNextWave();
@@ -102,30 +137,60 @@ public class LaserTower extends Tower{
 						System.out.println("All waves completed!");
 				}
 				
+				//if there are some Enemys either alive or hasn't reached the end -> find the closest Enemys with findEnemies method
+				//-> pass the ArrayList as an parameter to the shootEnemies method to shoot the enemies
 				else
 				{
 					ArrayList<Enemy> enemiesInRange = findEnemies(enemies);
 					if(enemiesInRange != null)
 						shootEnemies(enemiesInRange);
+					
 				}
 			}
-			
 				
 				
 		}));
 		
+		//play the animation
 		gameloop.setCycleCount(Timeline.INDEFINITE);
 		gameloop.play();
 
 	}
 	
 	
-	
+	//if user has enough money, place the tower; if not, drag the tower but do not place it
 	@Override
 	public boolean buyable()
 	{
-		//if user has enough money, place the tower; if not, drag the tower but do not place it
 		return false;
 	}
+	
+	//General getter and setter methods
+	public double getX() {
+		return towerX;
+	}
+
+	public void setX(double towerX) {
+		this.towerX = towerX;
+	}
+
+	public double getY() {
+		return towerY;
+	}
+
+	public void setsY(double towerY) {
+		this.towerY = towerY;
+	}
+	
+	public double getRangeRadius()
+	{
+		return rangeRadius;
+	}
+	
+	public int getPrice()
+	{
+		return price;
+	}
+
 
 }
