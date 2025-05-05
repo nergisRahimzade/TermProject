@@ -9,22 +9,30 @@ import javafx.event.*;
 import javafx.geometry.*;
 import javafx.animation.*;
 import java.util.*;
-
+//Nergiz Rahimzade 150124055
+//This class is superclass of all types of towers, it's related methods' or constructors' details are given on top of them
 public abstract class Tower extends Group{
-	public abstract boolean buyable(); // checks whether user has enough money to buy the tower
-	//public abstract void shootEnemy(Enemy enemy);// shoots the closest enemy and allows the tower to only one enemy at a time
-	
+	//tower's coordinate properties
+	private double towerX;
+	private double towerY;
+	 
+	// checks whether user has enough money to buy the tower
+	public abstract boolean buyable();
+
+
+	//default Tower type object; even though abstract class' objects cannot be created by "new" keyword, this constructor was put just in case:)
 	public Tower()
 	{
-		
+		towerX = 0;
+		towerY = 0;
 	}
 	
-	//shows the range of circle when user is dragging it
-	public void showRange()
+	
+	//shows the range of tower when user is dragging it
+	public void showRange(Tower tower)
 	{
-		//shows the range of the tower while user is dragging it
-		
-		Circle circle = new Circle(100);
+		//creating a circle for the range 
+		Circle circle = new Circle(tower.getX(), tower.getY(), 100);
 		circle.setFill(Color.color(1, 0.6, 0.6, 0.8));
 		
 		Pane pane = new Pane();
@@ -38,9 +46,10 @@ public abstract class Tower extends Group{
 		
 	}
 	
-	//checks whether the enemy is in range of tower
+	//checks whether the enemy is in range of tower, if it is returns true; if not returns false
 	public boolean isInRange(double towerX, double towerY, Enemy enemy, double radius)
 	{
+		//calculating the distance between the tower and enemy in order to compare it with radius of the range of the tower
 		double distance = Math.sqrt(Math.pow(enemy.getX() - towerX, 2) + Math.pow(enemy.getY() - towerY, 2));
 		
 		if(distance <= radius)
@@ -50,11 +59,30 @@ public abstract class Tower extends Group{
 			return false;
 	}
 	
+	//checks whether a tower already exists on the point user wants to insert tower
 	public boolean towerExists()
 	{
-		//checks whether a tower already exists on the point user wants to insert tower
 		return false;
 	}
+
+	
+	//General getter and setter methods for private properties
+	public double getX() {
+		return towerX;
+	}
+
+	public void setX(double towerX) {
+		this.towerX = towerX;
+	}
+
+	public double getY() {
+		return towerY;
+	}
+
+	public void setY(double towerY) {
+		this.towerY = towerY;
+	}
+	
 	
 	
 
