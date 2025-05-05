@@ -1,0 +1,205 @@
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.util.Duration;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.animation.*;
+import java.util.*;
+
+public class MissileLauncherTower extends Tower{
+	private double towerX;
+	private double towerY;
+	private double rangeRadius;
+	private double price;
+	
+	public MissileLauncherTower()
+	{ 
+		towerX = 0;
+		towerY = 0;
+		rangeRadius = 40;
+		price = 250;
+	}
+	
+	public MissileLauncherTower(double towerX, double towerY)
+	{
+		this.towerX = towerX;
+		this.towerY = towerY;
+		rangeRadius = 40;
+		price = 250;
+	}
+
+	public ArrayList<Enemy> findEnemies(ArrayList<Enemy> enemies)
+	{
+		ArrayList<Enemy> enemiesInRange = new ArrayList<>();
+		int count = 0;
+
+		for(int i = 0; i < enemies.size(); i++)
+		{
+			if(isInRange(towerX, towerY,(Enemy)(enemies.get(i)), rangeRadius))
+			{
+				enemiesInRange.add(enemies.get(i));
+				count++;
+			}
+			
+			if(count == 3)
+				break;
+		}
+		
+		if(enemiesInRange.isEmpty())
+			return null;
+		
+		return enemiesInRange;
+		
+	}
+	
+	public Node shootEnemies(ArrayList<Enemy> enemies)
+	{
+		Bullet bullet = new Bullet();
+		
+		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		{
+			if(!enemies.isEmpty())
+			{
+				double startX = towerX;
+				double startY = towerY;
+				double targetX = ((Enemy)(enemies.get(0))).getX();
+				double targetY = ((Enemy)(enemies.get(0))).getY();
+				
+				bullet.setStartX(startX);
+				bullet.setStartY(startY);
+				bullet.setEndX(targetX);
+				bullet.setEndY(targetY);
+				bullet.setRadius(5);
+				
+				double dx = targetX - startX;
+				double dy = targetY - startY;
+				
+				double distance = Math.sqrt(dx * dx - dy * dy);
+				
+				if(distance < 3 && ((Enemy)(enemies.get(0))).isActive() && ((Enemy)(enemies.get(0))) != null)
+					((Enemy)(enemies.get(0))).setActive(false);
+				
+				else
+				{
+					double vx = dx / distance;
+					double vy = dy / distance;
+					
+					bullet.setEndX(bullet.getEndX() + vx * 5); // 5 = speed
+					bullet.setEndX(bullet.getEndY() + vy * 5); 
+				}
+				
+					/*double targetX = enemy.getX();
+					double targetY = enemy.getY();
+					temp = new Bullet(startX, startY, targetX, targetY, 5);
+					
+					double dx = targetX - startX;
+					double dy = targetY - startY;
+					
+					double distance = Math.sqrt(dx * dx + dy *dy);
+					
+					if(enemy.isActive() && distance < 3 && enemy != null)
+					{
+						enemy.setActive(false);
+					}
+					
+					else
+					{
+						double vx = dx / distance;
+						double vy = dy / distance;
+						
+						bullet.setEndX(bullet.getEndX() + vx * 5); // 5 = speed
+						bullet.setEndY(bullet.getEndY() + vy * 5);
+					}*/
+					
+			}
+			
+		}));
+		
+		bulletTimeline.setCycleCount(Timeline.INDEFINITE);
+		bulletTimeline.play();
+		
+		return bullet;
+	}
+	
+	
+	
+	ArrayList<Enemy> enemies = new ArrayList<>();
+	public void gameloop(Enemy enemy)
+	{
+		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), event ->
+		{
+			
+			Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
+			
+			enemies = wave.getNextWave();
+			
+			if(enemies != null)
+			{
+				for(Enemy eachEnemy : enemies)
+					eachEnemy.update(1);
+
+				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()))// && the user still has enough lives
+				{
+					if(wave.hasMoreWaves())
+						enemies = wave.getNextWave();
+					else
+						System.out.println("All waves completed!");
+				}
+				
+				else
+				{
+					ArrayList<Enemy> currentEnemies = findEnemies(enemies);
+					if(currentEnemies != null)
+						shootEnemies(currentEnemies);
+				}
+			}
+			
+			
+		}));
+		
+		gameloop.setCycleCount(Timeline.INDEFINITE);
+		gameloop.play();
+	}
+	
+	
+	
+	
+	
+	@Override
+	public boolean buyable()
+	{
+		//checks if user has enough money to buy the tower, if yes return true; if no return false
+		return false;
+	}
+	public double getTowerX() {
+		return towerX;
+	}
+
+	public void setTowerX(double towerX) {
+		this.towerX = towerX;
+	}
+
+	public double getTowerY() {
+		return towerY;
+	}
+
+	public void setTowerY(double towerY) {
+		this.towerY = towerY;
+	}
+	
+	public double getRangeRadius()
+	{
+		return rangeRadius;
+	}
+	
+	public double getPrice()
+	{
+		return price;
+	}
+
+}
