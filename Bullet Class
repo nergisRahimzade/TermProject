@@ -1,0 +1,201 @@
+//Nergiz Rahimzade 150124055
+//This class creates Bullet(s) for SingleShotTower and TripleShotTower
+
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.util.Duration;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.animation.*;
+import javafx.beans.property.*;
+import java.util.*;
+
+public class Bullet extends Group{
+	//coordinates of Bullet
+	private double startX;
+	private double startY;
+	private double endX;
+	private double endY;
+	
+	//radius of Bullet
+	private int radius;
+	
+	//default constructor creates a red Circle with radius 5 as Bullet and adds it to the pane
+	public Bullet()
+	{
+		this.startX = 0;
+		this.startY = 0;
+		this.endX = 0;
+		this.endY = 0;
+		this.radius = 10;
+		Circle circle = new Circle(startX, startY, radius);
+		circle.setFill(Color.RED);
+		getChildren().add(circle);
+	}
+	
+	//this constructor takes coordinates and radius of Circle as parameters and sets the values to the corresponding variables and creates a red Circle accordingly
+	public Bullet(double startX, double startY, double endX, double endY, int radius)
+	{
+		this.startX = startX;
+		this.startY = startY;
+		this.endX = endX;
+		this.endY = endY;
+		this.radius = radius;
+		Circle circle = new Circle(startX, startY, radius);
+		circle.setFill(Color.RED);
+		getChildren().add(circle);
+	}
+	
+	//creates the explosion effect when bullets hit enemies
+	public void explosionEffect(double bulletEndX, double bulletEndY)
+	{
+		//A different path transition is created for each circle (- explosion effect -)
+		//the reason why a loop is not used is because for each circle i created a different Line path and if i used a loop i would have had to use the same line
+		//also the Line paths are not organized, meaning they are at unrelated places; this is another reason why a loop was not used
+        ArrayList<Circle> circles = new ArrayList<>();
+		
+		Circle circle1 = new Circle(bulletEndX, bulletEndY, 7);
+		circle1.setFill( Color.rgb(255, 102, 102));
+		circles.add(circle1);
+		
+		Circle circle2 = new Circle(bulletEndX, bulletEndY, 7);
+		circle2.setFill( Color.GREEN);
+		circles.add(circle2);
+		
+		Circle circle3 = new Circle(bulletEndX, bulletEndY, 7);
+		circle3.setFill( Color.BLUE);
+		circles.add(circle3);
+		
+		Circle circle4 = new Circle(bulletEndX, bulletEndY, 7);
+		circle4.setFill( Color.ORANGE);
+		circles.add(circle4);
+		
+		Circle circle5 = new Circle(bulletEndX, bulletEndY, 7);
+		circle5.setFill( Color.YELLOW);
+		circles.add(circle5);
+		
+		PathTransition pathTransition1 = new PathTransition();
+		Line line1 = new Line(bulletEndX, bulletEndY, bulletEndX + 20, bulletEndY + 15);
+		pathTransition1.setNode(circle1);
+		pathTransition1.setPath(line1);
+		pathTransition1.setCycleCount(1);
+		pathTransition1.setDuration(Duration.seconds(1));
+		pathTransition1.setAutoReverse(false);
+		pathTransition1.play();
+		
+		PauseTransition delay1 = new PauseTransition(Duration.seconds(1));
+		delay1.setOnFinished(e -> pathTransition1.pause());
+		delay1.play();
+		
+		
+		PathTransition pathTransition2 = new PathTransition();
+		Line line2 = new Line(bulletEndX, bulletEndY, bulletEndX + 10, bulletEndY - 8);
+		pathTransition2.setNode(circle2);
+		pathTransition2.setPath(line2);
+		pathTransition2.setCycleCount(1);
+		pathTransition2.setDuration(Duration.seconds(1));
+		pathTransition2.setAutoReverse(false);
+		pathTransition2.play();
+		
+		PauseTransition delay2 = new PauseTransition(Duration.seconds(1));
+		delay2.setOnFinished(e -> pathTransition1.pause());
+		delay2.play();
+		
+		
+		PathTransition pathTransition3 = new PathTransition();
+		Line line3 = new Line(bulletEndX, bulletEndY, bulletEndX, bulletEndY - 17);
+		pathTransition3.setNode(circle3);
+		pathTransition3.setPath(line3);
+		pathTransition3.setCycleCount(1);
+		pathTransition3.setDuration(Duration.seconds(1));
+		pathTransition3.setAutoReverse(false);
+		pathTransition3.play();
+		
+		PauseTransition delay3 = new PauseTransition(Duration.seconds(1));
+		delay3.setOnFinished(e -> pathTransition1.pause());
+		delay3.play();
+		
+		
+		PathTransition pathTransition4 = new PathTransition();
+		Line line4 = new Line(bulletEndX, bulletEndY, bulletEndX - 19, bulletEndY - 13);
+		pathTransition4.setNode(circle4);
+		pathTransition4.setPath(line4);
+		pathTransition4.setCycleCount(1);
+		pathTransition4.setDuration(Duration.seconds(1));
+		pathTransition4.setAutoReverse(false);
+		pathTransition4.play();
+		
+		PauseTransition delay4 = new PauseTransition(Duration.seconds(1));
+		delay4.setOnFinished(e -> pathTransition1.pause());
+		delay4.play();
+		
+		
+		PathTransition pathTransition5 = new PathTransition();
+		Line line5 = new Line(bulletEndX, bulletEndY, bulletEndX - 10, bulletEndY + 17);
+		pathTransition5.setNode(circle5);
+		pathTransition5.setPath(line5);
+		pathTransition5.setCycleCount(1);
+		pathTransition5.setDuration(Duration.seconds(1));
+		pathTransition5.setAutoReverse(false);
+		pathTransition5.play();
+		
+		PauseTransition delay5 = new PauseTransition(Duration.seconds(1));
+		delay5.setOnFinished(e -> pathTransition1.pause());
+		delay5.play();
+		
+		Pane pane = new Pane();
+
+		pane.getChildren().addAll(circle1, circle2, circle3, circle4, circle5);
+		//pane.getChildren().addAll(line1, line2, line3, line4, line5);
+		
+	}
+	
+	//General getter and setter methods
+	public double getStartX() {
+		return startX;
+	}
+
+	public void setStartX(double startX) {
+		this.startX = startX;
+	}
+
+	public double getStartY() {
+		return startY;
+	}
+
+	public void setStartY(double startY) {
+		this.startY = startY;
+	}
+
+	public double getEndX() {
+		return endX;
+	}
+
+	public void setEndX(double endX) {
+		this.endX = endX;
+	}
+
+	public double getEndY() {
+		return endY;
+	}
+	
+	public void setEndY(double endY) {
+		this.endY = endY;
+	}
+
+	public int getRadius() {
+		return radius;
+	}
+
+	public void setRadius(int radius) {
+		this.radius = radius;
+	}
+	
+	
+
+}
