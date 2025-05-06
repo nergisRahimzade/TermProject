@@ -77,25 +77,52 @@ public class LaserTower extends Tower{
 		//Pane created to add the Laser objects and make them visible on Scene
 		Pane pane = new Pane();
 		
+		
 		//a Timeline object is created to make an animation of several or single Lasers being shot
 		Timeline laserTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
 			if(!enemies.isEmpty())
 			{
-				//if there are enemies inside range, update their location every 16 milliseconds
+				//if there are enemies inside range, change the endX and endY properties of laser
 				for(Enemy enemy : enemies)
 				{
-					//i think there is a problem here
+
 					Laser laser = new Laser(towerX, towerY, enemy.getX(), enemy.getY());
+					
 					pane.getChildren().add(laser);
 					
-					//if enemy is alive, give a damage of magnitude 5 and add the laser created to the ArrayList
+					double dx = Math.abs(laser.getEndX() - enemy.getX());
+					double dy = Math.abs(laser.getEndY() - enemy.getY());
+					double distance = Math.sqrt(dx * dx + dy * dy);
+					
+					//if enemy is alive and the distance between the Tower and Laser is less than the threshold value and enemy is not null ->
+					//give a damage of magnitude 5 and add the laser created to the ArrayList, also add the laser to the pane
 					//notice that the damage LaserTower gives is less than SingleShotTower
-					if(enemy.isActive())
+					if(enemy.isActive() && distance < 5 && enemy != null)
 					{
 						enemy.damage(5);
 						list.add(laser);
+						pane.getChildren().add(laser);
+						
+						if(!enemy.isActive())
+						{
+							list.remove(laser);
+							pane.getChildren().remove(laser);
+							laser.explosionEffect(laser.getEndX(), laser.getEndY());
+						}
 					}
+					
+				/*	else if(enemy.isActive())
+					{
+
+						//not sure about this calculation
+						double vx = dx / distance;
+						double vy = dy / distance;
+						
+						double speed = 8;
+						laser.setEndX(laser.getEndX() + vx * speed); 
+						laser.setEndY(laser.getEndY() + vy * speed);
+					}*/
 				}
 			}
 			
@@ -115,7 +142,8 @@ public class LaserTower extends Tower{
 	ArrayList<Enemy> enemies = new ArrayList<>();
 	public void gameloop(Enemy enemy)
 	{
-		Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
+		WaveManager wave = new WaveManager(enemy.getPathCoordinates(), enemy.getTileSize());
+		Pane gamePane = new Pane();
 		
 		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), event ->
 		{
@@ -124,15 +152,28 @@ public class LaserTower extends Tower{
 			if(enemies != null)
 			{
 				//if enemies are not null, update each enemies inside location
+				enemies.removeIf(currentEnemy -> !currentEnemy.isActive());
+				enemies.forEach(currentEnemy -> currentEnemy.update(1));
+				
+				//adding the updated versions of Enemys
 				for(Enemy eachEnemy : enemies)
-					eachEnemy.update(1);
+				{
+					gamePane.getChildren().add(eachEnemy);
+				}
 				
 				//if all Enemys inside enemies ArrayList is either dead or has reached end -> if there are still some waves left 
 				//-> give the next Enemy wave
-				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd())) // && the user has still life
+				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()) || enemies.isEmpty()) // && the user has still life
 				{
 					if(wave.hasMoreWaves())
+					{
 						enemies = wave.getNextWave();
+						for(Enemy eachEnemy : enemies)
+						{
+							gamePane.getChildren().add(eachEnemy);
+						}
+					}
+						
 					else
 						System.out.println("All waves completed!");
 				}
@@ -143,7 +184,11 @@ public class LaserTower extends Tower{
 				{
 					ArrayList<Enemy> enemiesInRange = findEnemies(enemies);
 					if(enemiesInRange != null)
-						shootEnemies(enemiesInRange);
+					{
+						List<Node> projectile = shootEnemies(enemiesInRange);
+						for(Node node : projectile)
+							gamePane.getChildren().add(node);
+					}
 					
 				}
 			}
