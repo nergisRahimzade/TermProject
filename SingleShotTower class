@@ -18,6 +18,9 @@ public class SingleShotTower extends Tower{
 	private double towerX;
 	private double towerY;
 	
+	//Timeline object for bullet animation
+	private Timeline bulletTimeline;
+	
 	//radius of the range of the tower
 	private double rangeRadius;
 	
@@ -96,36 +99,44 @@ public class SingleShotTower extends Tower{
 		double targetY = enemy.getY();
 		
 		//creating a bullet object for Single Shot Tower
-		Bullet bullet = new Bullet(startX, startY, targetX, targetY, 5);
+		Bullet bullet = new Bullet(startX, startY, targetX, targetY, 10);
 		
-		//creating a pane for animations
+		//creating a pane for nodes
 		Pane pane = new Pane();
 		
 		pane.getChildren().addAll(bullet);
 		
-		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		this.bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
 			double dx = targetX - startX;
 			double dy = targetY - startY;
 			double distance = Math.sqrt(dx * dx + dy * dy);
 			
-			//if the bullet hits the enemy (3 is the number of pixels of threshold/offset) and the enemy is alive - we already gave the Enemy parameter that is
+			//if the bullet hits the enemy (5 is the number of pixels of threshold/offset) and the enemy is alive - we already gave the Enemy parameter that is
 			//in range of tower -, give a damage magnitude 10 to the enemy
-			if(distance < 3 && enemy != null && enemy.isActive())
+			if(distance < 5 && enemy != null && enemy.isActive())
 			{
 					enemy.damage(10);
-					//bullet.explosionEffect();
+					bulletTimeline.stop(); //?? why are we stopping the bulletTimeline
+					
+					//if Enemy is dead after shooting remove the bullet from the pane so that it is not visible anymore and use the explosionEffect
+					if(!enemy.isActive())
+					{
+						pane.getChildren().remove(bullet);
+						bullet.explosionEffect(bullet.getEndX(), bullet.getEndY());
+					}
 			}
 			
-			//if bullet's distance to the tower is more than or equal to 3 and it is still alive, that means enemy is still on its' way towards the tower
+			//if bullet's distance to the tower is more than or equal to 5 and it is still alive, that means enemy is still on its' way towards the tower
 			//so we move the bullet using a little math
 			else if(enemy.isActive())
 			{
 				double vx = dx / distance;
 				double vy = dy / distance;
 				
-				bullet.setEndX(bullet.getEndX() + vx * 5); // 5 = speed
-				bullet.setEndY(bullet.getEndY() + vy * 5); 
+				double speed = 8;
+				bullet.setEndX(bullet.getEndX() + vx * speed); 
+				bullet.setEndY(bullet.getEndY() + vy * speed); 
 				
 			}
 		}));
@@ -141,31 +152,47 @@ public class SingleShotTower extends Tower{
 	}
 	
 	//FIND OUT HOW TO MAKE THE WAVE CLASS VISIBLE
-	//creates a kind of a loop that will show the bullets and the enemy wave
+	//creates a kind of a animation frame every 16 milliseconds that will show the bullets and the enemy wave
 	ArrayList<Enemy> currentEnemies = new ArrayList<>();
 	public void gameloop(Enemy enemy) //A PROBLEM HERE - how can i create a gameloop class that does not take Enemy object as a parameter
 	{	
-		Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
+		WaveManager wave = new WaveManager(enemy.getPathCoordinates(), enemy.getTileSize());
 		currentEnemies = wave.getNextWave();
+
+		Pane gamePane = new Pane();
+		
+		//adds all the Enemys to the pane because none of them had been shot yet
+		for(Enemy eachEnemy : currentEnemies)
+		{
+            gamePane.getChildren().add(eachEnemy);
+		}
 		
 		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{	
 			if(currentEnemies != null)
 			{
-				//updates the coordinates of each enemy every 16 milliseconds
-				for(Enemy currentEnemy : currentEnemies)
+				
+				
+				//first removes the Enemy if it is dead and then updates the coordinates of each enemy every 16 milliseconds
+				currentEnemies.removeIf(currentEnemy -> !currentEnemy.isActive());
+				currentEnemies.forEach(currentEnemy -> currentEnemy.update(1));
+				
+				//adds the Enemys updated versions to the pane 
+				for(Enemy eachEnemy : currentEnemies)
 				{
-					currentEnemy.update(1);
-					//enemy.createEnemy(graphicsContext);
+					gamePane.getChildren().add(eachEnemy);
 				}
 				
-				//if all Enemys inside currentEnemies ArrayList is either dead or has reached the end of the map - if there are still waves left -> 
-				//-> make currentEnemies as the next wave of enemies
-				if(currentEnemies.stream().allMatch(currentEnemy -> !currentEnemy.isActive() || currentEnemy.hasReachedEnd()))
+				//if all Enemys inside currentEnemies ArrayList is either dead or has reached the end of the map or currentEnemies is empty-> 
+				//if there are still waves left -> 
+				// make currentEnemies as the next wave of enemies
+				if(currentEnemies.stream().allMatch(currentEnemy -> !currentEnemy.isActive() || currentEnemy.hasReachedEnd()) || currentEnemies.isEmpty())
 				{
 					if(wave.hasMoreWaves())
 					{
 						currentEnemies = wave.getNextWave();
+						for(int i = 0; i < currentEnemies.size(); i++)
+							gamePane.getChildren().add((Enemy)(currentEnemies.get(i)));
 					}
 					else
 						System.out.println("All waves completed!");
@@ -176,8 +203,11 @@ public class SingleShotTower extends Tower{
 				else
 				{
 					Enemy target = findEnemy(currentEnemies);
-					if(target != null && isInRange(towerX, towerY, target, rangeRadius))
-						shootEnemy(target);
+					if(target != null)
+					{
+						Node projectile = shootEnemy(target);
+						gamePane.getChildren().add(projectile);
+					}
 				}
 			}
 					
@@ -193,7 +223,7 @@ public class SingleShotTower extends Tower{
 	}
 	
 	//checks if the user has enough money to buy the tower
-			//if money is enough return true, else return false
+			//if money is enough return true, else return false 
 	@Override
 	public boolean buyable()
 	{
