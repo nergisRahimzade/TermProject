@@ -24,7 +24,9 @@ public class TripleShotTower extends Tower{
 	
 	//price of the tower
 	private int price;
-
+	
+	ArrayList<double[]> towerCoordinates;
+	
 	//default constructor with explicitly given default values
 	public TripleShotTower()
 	{
@@ -159,7 +161,15 @@ public class TripleShotTower extends Tower{
 			if(enemies != null)
 			{
 				
-				enemies.removeIf(currentEnemy -> !currentEnemy.isActive());
+				//removes the enemy both from the ArrayList and the pane if it is not alive
+				for(Enemy currentEnemy : enemies)
+				{
+					if(!currentEnemy.isActive())
+					{
+						enemies.remove(currentEnemy);
+						gamePane.getChildren().remove(currentEnemy);
+					}
+				}
 				enemies.forEach(currentEnemy -> currentEnemy.update(1));
 				
 				//adding the updated enemies to the pane
@@ -206,13 +216,70 @@ public class TripleShotTower extends Tower{
 	}
 	
 	
-	@Override
-	public boolean buyable()
-	{
-		//check if the user's money is enough to buy the tower, if it is
-		//return true, if not return false
-		return false;
-	}
+	//places the tower after the user dragges the tower
+			public void placeTower()
+			{
+				TripleShotTower tower = new TripleShotTower();
+				
+				towerCoordinates = new ArrayList<>();
+				
+				Pane pane = new Pane();
+				pane.getChildren().add(tower);
+				
+				tower.setOnMouseDragged(e -> 
+				{
+					tower.setX(e.getX());
+					tower.setY(e.getY());
+					tower.showRange(tower);
+				});
+				
+				tower.setOnMouseReleased(e ->
+				{
+					double mouseX = e.getX();
+					double mouseY = e.getY();
+					boolean isValidPlacement = false;
+					
+					double bestTileX = 0;
+					double bestTileY = 0;
+					
+					for(int[] tile : getDarkYellowTiles)
+					{
+						int row = tile[0];
+						int col = tile[1];
+						
+						double tileLeftLimit = col * getCellSize;
+						double tileRightLimit = (col + 1) * getCellSize;
+						double tileBottomLimit = row * getCellSize;
+						double tileTopLimit = (row + 1) * getCellSize;
+						
+						if(mouseX >= tileLeftLimit && mouseX <= tileRightLimit
+								&& mouseY >= tileBottomLimit && mouseY <= tileTopLimit)
+						{
+							bestTileX = col * getCellSize + getCellSize / 2;
+							bestTileY = row * getCellSize + getCellSize / 2;
+							isValidPlacement = isValidPlacement(bestTileX, bestTileY);
+							double[] temp = {bestTileX, bestTileY};
+							towerCoordinates.add(temp);
+							break;
+						}
+						
+					}
+					
+					
+					if(isValidPlacement)
+					{
+						tower.setX(bestTileX);
+						tower.setY(bestTileY);
+					}
+					
+					else
+					{
+						pane.getChildren().remove(tower);
+					}
+				});
+				
+				
+			}
 	
 	public double getX() {
 		return towerX;
@@ -238,6 +305,11 @@ public class TripleShotTower extends Tower{
 	public int getPrice()
 	{
 		return price;
+	}
+	
+	public ArrayList<double[]> getTowerCoordinates()
+	{
+		return towerCoordinates;
 	}
 
 }
