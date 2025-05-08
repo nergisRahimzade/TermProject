@@ -1,3 +1,5 @@
+//Nergiz Rahimzade 150124055
+//This class belongs to Missile Launcher Tower and it's related method(s)/constructor(s)
 import javafx.application.*;
 import javafx.stage.*;
 import javafx.util.Duration;
@@ -12,42 +14,50 @@ import javafx.animation.*;
 import java.util.*;
 
 public class MissileLauncherTower extends Tower{
+	//coordinates of tower
 	private double towerX;
 	private double towerY;
+	
+	//radius of the range of the tower
 	private double rangeRadius;
+	
+	//price of the tower
 	private double price;
 	
+	//if a Tower is placed on the map, it is added to this arraylist
+	private ArrayList<double[]> towerCoordinates;
+	
+	//a default constructor for Missile Launcher Tower type
 	public MissileLauncherTower()
 	{ 
 		towerX = 0;
 		towerY = 0;
-		rangeRadius = 40;
+		rangeRadius = 55;
 		price = 250;
 	}
 	
+	//a constructor which only takes the coordinate values as parameters
+	//you might have noticed that there are no allowance of changing the price and rangeRadius properties and as you move on you will also see that there are no 
+	//setter methods for price and rangeRadius properties, the reason is they do not need to be changed and they will have constant values
 	public MissileLauncherTower(double towerX, double towerY)
 	{
 		this.towerX = towerX;
 		this.towerY = towerY;
-		rangeRadius = 40;
+		rangeRadius = 55;
 		price = 250;
 	}
 
+	//this method returns the Enemys inside Tower's range
 	public ArrayList<Enemy> findEnemies(ArrayList<Enemy> enemies)
 	{
 		ArrayList<Enemy> enemiesInRange = new ArrayList<>();
-		int count = 0;
 
 		for(int i = 0; i < enemies.size(); i++)
 		{
 			if(isInRange(towerX, towerY,(Enemy)(enemies.get(i)), rangeRadius))
 			{
 				enemiesInRange.add(enemies.get(i));
-				count++;
 			}
-			
-			if(count == 3)
-				break;
 		}
 		
 		if(enemiesInRange.isEmpty())
@@ -57,94 +67,111 @@ public class MissileLauncherTower extends Tower{
 		
 	}
 	
+	
+	//this method shoots the nearest enemy to the tower position
 	public Node shootEnemies(ArrayList<Enemy> enemies)
 	{
-		Bullet bullet = new Bullet();
+		double startX = towerX;
+		double startY = towerY;
+		Enemy enemy = enemies.get(0);
+		double targetX = enemy.getX();
+		double targetY = enemy.getY();
+		
+		//creating a bullet object for Single Shot Tower
+		Bullet bullet = new Bullet(startX, startY, targetX, targetY, 10);
+		
+		//creating a pane for nodes
+		Pane pane = new Pane();
+		
+		pane.getChildren().addAll(bullet);
 		
 		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
-			if(!enemies.isEmpty())
+			double dx = targetX - startX;
+			double dy = targetY - startY;
+			double distance = Math.sqrt(dx * dx + dy * dy);
+			
+			//if the bullet hits the enemy (5 is the number of pixels of threshold/offset) and the enemy is alive - we already gave the Enemy parameter that is
+			//in range of tower -, kill the enemy in one shot
+			if(distance < 5 && enemy != null && enemy.isActive())
 			{
-				double startX = towerX;
-				double startY = towerY;
-				double targetX = ((Enemy)(enemies.get(0))).getX();
-				double targetY = ((Enemy)(enemies.get(0))).getY();
-				
-				bullet.setStartX(startX);
-				bullet.setStartY(startY);
-				bullet.setEndX(targetX);
-				bullet.setEndY(targetY);
-				bullet.setRadius(5);
-				
-				double dx = targetX - startX;
-				double dy = targetY - startY;
-				
-				double distance = Math.sqrt(dx * dx - dy * dy);
-				
-				if(distance < 3 && ((Enemy)(enemies.get(0))).isActive() && ((Enemy)(enemies.get(0))) != null)
-					((Enemy)(enemies.get(0))).setActive(false);
-				
-				else
-				{
-					double vx = dx / distance;
-					double vy = dy / distance;
+				    //killing all enemies inside the range
+					enemies.forEach(eachEnemy -> eachEnemy.setActive(false));
+					//bulletTimeline.stop(); //?? why are we stopping the bulletTimeline
 					
-					bullet.setEndX(bullet.getEndX() + vx * 5); // 5 = speed
-					bullet.setEndX(bullet.getEndY() + vy * 5); 
-				}
-				
-					/*double targetX = enemy.getX();
-					double targetY = enemy.getY();
-					temp = new Bullet(startX, startY, targetX, targetY, 5);
-					
-					double dx = targetX - startX;
-					double dy = targetY - startY;
-					
-					double distance = Math.sqrt(dx * dx + dy *dy);
-					
-					if(enemy.isActive() && distance < 3 && enemy != null)
+					//if Enemys are dead after shooting remove the bullet from the pane so that it is not visible anymore and use the explosionEffect
+					if(!enemy.isActive())
 					{
-						enemy.setActive(false);
+						pane.getChildren().remove(bullet);
+						bullet.explosionEffect(bullet.getEndX(), bullet.getEndY());
 					}
-					
-					else
-					{
-						double vx = dx / distance;
-						double vy = dy / distance;
-						
-						bullet.setEndX(bullet.getEndX() + vx * 5); // 5 = speed
-						bullet.setEndY(bullet.getEndY() + vy * 5);
-					}*/
-					
 			}
 			
+			//if bullet's distance to the tower is more than or equal to 5 and the Enemy is still alive, that means bullet is still on its' way towards the enemy
+			//so we move the bullet using a little math
+			else if(enemy.isActive())
+			{
+				double vx = dx / distance;
+				double vy = dy / distance;
+				
+				double speed = 5;
+				bullet.setEndX(bullet.getEndX() + vx * speed); 
+				bullet.setEndY(bullet.getEndY() + vy * speed); 
+				
+			}
 		}));
+		
 		
 		bulletTimeline.setCycleCount(Timeline.INDEFINITE);
 		bulletTimeline.play();
 		
 		return bullet;
+		
+		
+		
 	}
 	
 	
-	
+	//this method creates a new frame every 16 milliseconds to show the enemy waves and shooting animations 
+	//also this method guarantees bullets hits the enemies
 	ArrayList<Enemy> enemies = new ArrayList<>();
 	public void gameloop(Enemy enemy)
 	{
+		Pane gamePane = new Pane();
 		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), event ->
 		{
 			
-			Wave wave = new Wave(enemy.getPathCoordinates(), enemy.getTileSize());
+			WaveManager wave = new WaveManager(enemy.getPathCoordinates(), enemy.getTileSize());
+			
 			
 			enemies = wave.getNextWave();
+			enemies.forEach(eachEnemy -> gamePane.getChildren().add(eachEnemy));
 			
 			if(enemies != null)
 			{
-				for(Enemy eachEnemy : enemies)
-					eachEnemy.update(1);
-
-				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()))// && the user still has enough lives
+				//removes the enemy both from the ArrayList and the pane if it is not alive
+				for(Enemy currentEnemy : enemies)
 				{
+					if(!currentEnemy.isActive())
+					{
+						enemies.remove(currentEnemy);
+						gamePane.getChildren().remove(currentEnemy);
+					}
+				}
+				//updates the location of enemies that are still alive
+				enemies.forEach(currentEnemy -> currentEnemy.update(1));
+				
+				//adding the Enemys with updated locations
+				//???this might cause the program to add unnecessary number of Enemys???
+				for(Enemy eachEnemy : enemies)
+				{
+					gamePane.getChildren().add(eachEnemy);
+				}
+
+				//if all Enemy s are either dead or has reached end or enemies is empty
+				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()) || enemies.isEmpty())// && the user still has enough lives
+				{
+					//if there are more waves left, get the next wave
 					if(wave.hasMoreWaves())
 						enemies = wave.getNextWave();
 					else
@@ -153,9 +180,14 @@ public class MissileLauncherTower extends Tower{
 				
 				else
 				{
+					//finding the Enemys inside the range
 					ArrayList<Enemy> currentEnemies = findEnemies(enemies);
 					if(currentEnemies != null)
-						shootEnemies(currentEnemies);
+					{
+						//shooting animation added to the pane
+						Node projectile = shootEnemies(currentEnemies);
+						gamePane.getChildren().add(projectile);
+					}
 				}
 			}
 			
@@ -167,15 +199,72 @@ public class MissileLauncherTower extends Tower{
 	}
 	
 	
+	//places the tower after the user dragges the tower
+			public void placeTower()
+			{
+				MissileLauncherTower tower = new MissileLauncherTower();
+				
+				towerCoordinates = new ArrayList<>();
+				
+				Pane pane = new Pane();
+				pane.getChildren().add(tower);
+				
+				tower.setOnMouseDragged(e -> 
+				{
+					tower.setX(e.getX());
+					tower.setY(e.getY());
+					tower.showRange(tower);
+				});
+				
+				tower.setOnMouseReleased(e ->
+				{
+					double mouseX = e.getX();
+					double mouseY = e.getY();
+					boolean isValidPlacement = false;
+					
+					double bestTileX = 0;
+					double bestTileY = 0;
+					
+					for(int[] tile : getDarkYellowTiles)
+					{
+						int row = tile[0];
+						int col = tile[1];
+						
+						double tileLeftLimit = col * getCellSize;
+						double tileRightLimit = (col + 1) * getCellSize;
+						double tileBottomLimit = row * getCellSize;
+						double tileTopLimit = (row + 1) * getCellSize;
+						
+						if(mouseX >= tileLeftLimit && mouseX <= tileRightLimit
+								&& mouseY >= tileBottomLimit && mouseY <= tileTopLimit)
+						{
+							bestTileX = col * getCellSize + getCellSize / 2;
+							bestTileY = row * getCellSize + getCellSize / 2;
+							isValidPlacement = isValidPlacement(bestTileX, bestTileY);
+							double[] temp = {bestTileX, bestTileY};
+							towerCoordinates.add(temp);
+							break;
+						}
+						
+					}
+					
+					
+					if(isValidPlacement)
+					{
+						tower.setX(bestTileX);
+						tower.setY(bestTileY);
+					}
+					
+					else
+					{
+						pane.getChildren().remove(tower);
+					}
+				});
+				
+				
+			}
 	
 	
-	
-	@Override
-	public boolean buyable()
-	{
-		//checks if user has enough money to buy the tower, if yes return true; if no return false
-		return false;
-	}
 	public double getTowerX() {
 		return towerX;
 	}
@@ -202,4 +291,8 @@ public class MissileLauncherTower extends Tower{
 		return price;
 	}
 
+	public ArrayList<double[]> getTowerCoordinates()
+	{
+		return towerCoordinates;
+	}
 }
