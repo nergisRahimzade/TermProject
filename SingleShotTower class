@@ -18,14 +18,13 @@ public class SingleShotTower extends Tower{
 	private double towerX;
 	private double towerY;
 	
-	//Timeline object for bullet animation
-	private Timeline bulletTimeline;
-	
 	//radius of the range of the tower
 	private double rangeRadius;
 	
 	//price of the tower
 	private int price;
+	
+	private ArrayList<double[]> towerCoordinates;
 	
 	//a default constructor for Single Shot Tower type
 	public SingleShotTower()
@@ -106,7 +105,7 @@ public class SingleShotTower extends Tower{
 		
 		pane.getChildren().addAll(bullet);
 		
-		this.bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
 			double dx = targetX - startX;
 			double dy = targetY - startY;
@@ -117,7 +116,7 @@ public class SingleShotTower extends Tower{
 			if(distance < 5 && enemy != null && enemy.isActive())
 			{
 					enemy.damage(10);
-					bulletTimeline.stop(); //?? why are we stopping the bulletTimeline
+					//bulletTimeline.stop(); //?? why are we stopping the bulletTimeline
 					
 					//if Enemy is dead after shooting remove the bullet from the pane so that it is not visible anymore and use the explosionEffect
 					if(!enemy.isActive())
@@ -127,7 +126,7 @@ public class SingleShotTower extends Tower{
 					}
 			}
 			
-			//if bullet's distance to the tower is more than or equal to 5 and it is still alive, that means enemy is still on its' way towards the tower
+			//if bullet's distance to the enemy is more than or equal to 5 and it is still alive, that means bullet is still on its' way towards the enemy
 			//so we move the bullet using a little math
 			else if(enemy.isActive())
 			{
@@ -173,8 +172,15 @@ public class SingleShotTower extends Tower{
 			{
 				
 				
-				//first removes the Enemy if it is dead and then updates the coordinates of each enemy every 16 milliseconds
-				currentEnemies.removeIf(currentEnemy -> !currentEnemy.isActive());
+				//removes the enemy both from the ArrayList and the pane if it is not alive
+				for(Enemy currentEnemy : currentEnemies)
+				{
+					if(!currentEnemy.isActive())
+					{
+						currentEnemies.remove(currentEnemy);
+						gamePane.getChildren().remove(currentEnemy);
+					}
+				}
 				currentEnemies.forEach(currentEnemy -> currentEnemy.update(1));
 				
 				//adds the Enemys updated versions to the pane 
@@ -222,13 +228,71 @@ public class SingleShotTower extends Tower{
 		
 	}
 	
-	//checks if the user has enough money to buy the tower
-			//if money is enough return true, else return false 
-	@Override
-	public boolean buyable()
-	{
-		return false;
-	}
+	//places the tower after the user dragges the tower
+		public void placeTower()
+		{
+			SingleShotTower tower = new SingleShotTower();
+			
+			towerCoordinates = new ArrayList<>();
+			
+			Pane pane = new Pane();
+			pane.getChildren().add(tower);
+			
+			tower.setOnMouseDragged(e -> 
+			{
+				tower.setX(e.getX());
+				tower.setY(e.getY());
+				tower.showRange(tower);
+			});
+			
+			tower.setOnMouseReleased(e ->
+			{
+				double mouseX = e.getX();
+				double mouseY = e.getY();
+				boolean isValidPlacement = false;
+				
+				double bestTileX = 0;
+				double bestTileY = 0;
+				
+				for(int[] tile : getDarkYellowTiles)
+				{
+					int row = tile[0];
+					int col = tile[1];
+					
+					double tileLeftLimit = col * getCellSize;
+					double tileRightLimit = (col + 1) * getCellSize;
+					double tileBottomLimit = row * getCellSize;
+					double tileTopLimit = (row + 1) * getCellSize;
+					
+					if(mouseX >= tileLeftLimit && mouseX <= tileRightLimit
+							&& mouseY >= tileBottomLimit && mouseY <= tileTopLimit)
+					{
+						bestTileX = col * getCellSize + getCellSize / 2;
+						bestTileY = row * getCellSize + getCellSize / 2;
+						isValidPlacement = isValidPlacement(bestTileX, bestTileY);
+						double[] temp = {bestTileX, bestTileY};
+						towerCoordinates.add(temp);
+						break;
+					}
+					
+				}
+				
+				
+				if(isValidPlacement)
+				{
+					tower.setX(bestTileX);
+					tower.setY(bestTileY);
+				}
+				
+				else
+				{
+					pane.getChildren().remove(tower);
+				}
+			});
+			
+			
+		}
+		
 	
 	//General getter and setter methods
 	public double getTowerX() {
@@ -253,6 +317,11 @@ public class SingleShotTower extends Tower{
 
 	public int getPrice() {
 		return price;
+	}
+	
+	public ArrayList<double[]> getTowerCoordinates()
+	{
+		return towerCoordinates;
 	}
 
 	
