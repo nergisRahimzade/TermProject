@@ -25,6 +25,8 @@ public class LaserTower extends Tower{
 	//price of the tower
 	private int price;
 	
+	ArrayList<double[]> towerCoordinates;
+	
 	//a default constructor with given default values
 	public LaserTower() 
 	{
@@ -151,8 +153,15 @@ public class LaserTower extends Tower{
 			
 			if(enemies != null)
 			{
-				//if enemies are not null, update each enemies inside location
-				enemies.removeIf(currentEnemy -> !currentEnemy.isActive());
+				//removes the enemy both from the ArrayList and the pane if it is not alive
+				for(Enemy currentEnemy : enemies)
+				{
+					if(!currentEnemy.isActive())
+					{
+						enemies.remove(currentEnemy);
+						gamePane.getChildren().remove(currentEnemy);
+					}
+				}
 				enemies.forEach(currentEnemy -> currentEnemy.update(1));
 				
 				//adding the updated versions of Enemys
@@ -203,12 +212,70 @@ public class LaserTower extends Tower{
 	}
 	
 	
-	//if user has enough money, place the tower; if not, drag the tower but do not place it
-	@Override
-	public boolean buyable()
-	{
-		return false;
-	}
+	//places the tower after the user dragges the tower
+			public void placeTower()
+			{
+				LaserTower tower = new LaserTower();
+				
+				towerCoordinates = new ArrayList<>();
+				
+				Pane pane = new Pane();
+				pane.getChildren().add(tower);
+				
+				tower.setOnMouseDragged(e -> 
+				{
+					tower.setX(e.getX());
+					tower.setY(e.getY());
+					tower.showRange(tower);
+				});
+				
+				tower.setOnMouseReleased(e ->
+				{
+					double mouseX = e.getX();
+					double mouseY = e.getY();
+					boolean isValidPlacement = false;
+					
+					double bestTileX = 0;
+					double bestTileY = 0;
+					
+					for(int[] tile : getDarkYellowTiles)
+					{
+						int row = tile[0];
+						int col = tile[1];
+						
+						double tileLeftLimit = col * getCellSize;
+						double tileRightLimit = (col + 1) * getCellSize;
+						double tileBottomLimit = row * getCellSize;
+						double tileTopLimit = (row + 1) * getCellSize;
+						
+						if(mouseX >= tileLeftLimit && mouseX <= tileRightLimit
+								&& mouseY >= tileBottomLimit && mouseY <= tileTopLimit)
+						{
+							bestTileX = col * getCellSize + getCellSize / 2;
+							bestTileY = row * getCellSize + getCellSize / 2;
+							isValidPlacement = isValidPlacement(bestTileX, bestTileY);
+							double[] temp = {bestTileX, bestTileY};
+							towerCoordinates.add(temp);
+							break;
+						}
+						
+					}
+					
+					
+					if(isValidPlacement)
+					{
+						tower.setX(bestTileX);
+						tower.setY(bestTileY);
+					}
+					
+					else
+					{
+						pane.getChildren().remove(tower);
+					}
+				});
+				
+				
+			}
 	
 	//General getter and setter methods
 	public double getX() {
@@ -235,6 +302,11 @@ public class LaserTower extends Tower{
 	public int getPrice()
 	{
 		return price;
+	}
+	
+	public ArrayList<double[]> getTowerCoordinates()
+	{
+		return towerCoordinates;
 	}
 
 
