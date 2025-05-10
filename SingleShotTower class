@@ -153,10 +153,10 @@ public class SingleShotTower extends Tower{
 	//FIND OUT HOW TO MAKE THE WAVE CLASS VISIBLE
 	//creates a kind of a animation frame every 16 milliseconds that will show the bullets and the enemy wave
 	ArrayList<Enemy> currentEnemies = new ArrayList<>();
-	public void gameloop(Enemy enemy) //A PROBLEM HERE - how can i create a gameloop class that does not take Enemy object as a parameter
+	public void gameloop(int enemyCount, double timeBetweenSpawns, int enemyHealth, 
+			double enemySpeed, int enemySize, Color enemyColor, int delayTime) //A PROBLEM HERE - how can i create a gameloop class that does not take Enemy object as a parameter
 	{	
-		WaveManager wave = new WaveManager(enemy.getPathCoordinates(), enemy.getTileSize());
-		currentEnemies = wave.getNextWave();
+		WaveDefinition wave = new WaveDefinition(enemyCount, timeBetweenSpawns, enemyHealth, enemySpeed, enemySize, enemyColor, delayTime);
 
 		Pane gamePane = new Pane();
 		
@@ -194,14 +194,19 @@ public class SingleShotTower extends Tower{
 				// make currentEnemies as the next wave of enemies
 				if(currentEnemies.stream().allMatch(currentEnemy -> !currentEnemy.isActive() || currentEnemy.hasReachedEnd()) || currentEnemies.isEmpty())
 				{
-					if(wave.hasMoreWaves())
+					/*if(wave.hasMoreWaves())
 					{
-						currentEnemies = wave.getNextWave();
+						currentEnemies = wave.getEnemy(wave);
 						for(int i = 0; i < currentEnemies.size(); i++)
 							gamePane.getChildren().add((Enemy)(currentEnemies.get(i)));
 					}
 					else
-						System.out.println("All waves completed!");
+						System.out.println("All waves completed!");*/
+					
+					
+					currentEnemies = wave.getEnemy(wave);
+					for(int i = 0; i < currentEnemies.size(); i++)
+						gamePane.getChildren().add((Enemy)(currentEnemies.get(i)));
 				}
 				
 				//if there are still either alive enemies or enemies that hasn't reached end -> find the closest enemy with findEnemy method , 
@@ -227,6 +232,9 @@ public class SingleShotTower extends Tower{
 		gameloop.play();
 		
 	}
+	
+	map2 temp = new map2();
+	ArrayList<int[]> outOfPathPoints = temp.getOutOfPathPoints(); 
 	
 	//places the tower after the user dragges the tower
 		public void placeTower()
@@ -254,21 +262,21 @@ public class SingleShotTower extends Tower{
 				double bestTileX = 0;
 				double bestTileY = 0;
 				
-				for(int[] tile : getDarkYellowTiles)
+				for(int[] tile : outOfPathPoints)
 				{
 					int row = tile[0];
 					int col = tile[1];
 					
-					double tileLeftLimit = col * getCellSize;
-					double tileRightLimit = (col + 1) * getCellSize;
-					double tileBottomLimit = row * getCellSize;
-					double tileTopLimit = (row + 1) * getCellSize;
+					double tileLeftLimit = col * mappp1.CELL_SIZE;
+					double tileRightLimit = (col + 1) * mappp1.CELL_SIZE;
+					double tileBottomLimit = row * mappp1.CELL_SIZE;
+					double tileTopLimit = (row + 1) * mappp1.CELL_SIZE;
 					
 					if(mouseX >= tileLeftLimit && mouseX <= tileRightLimit
 							&& mouseY >= tileBottomLimit && mouseY <= tileTopLimit)
 					{
-						bestTileX = col * getCellSize + getCellSize / 2;
-						bestTileY = row * getCellSize + getCellSize / 2;
+						bestTileX = col * mappp1.CELL_SIZE + mappp1.CELL_SIZE / 2;
+						bestTileY = row * mappp1.CELL_SIZE + mappp1.CELL_SIZE / 2;
 						isValidPlacement = isValidPlacement(bestTileX, bestTileY);
 						double[] temp = {bestTileX, bestTileY};
 						towerCoordinates.add(temp);
@@ -292,6 +300,15 @@ public class SingleShotTower extends Tower{
 			
 			
 		}
+		
+	public int levelNumber()
+	{
+		TermProjectTest1 t = new TermProjectTest1();
+		ArrayList<Integer> temp = t.getCurrentLevel();
+		
+		return temp.get(temp.size() - 1);
+		
+	}
 		
 	
 	//General getter and setter methods
