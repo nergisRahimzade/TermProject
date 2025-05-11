@@ -1,0 +1,101 @@
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.util.Duration;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.animation.*;
+import java.util.*;
+
+
+public class TestTripleShotTowerImage extends Group{
+
+	private ImageView tripleShotTowerImage;
+	
+
+	public void image()
+	{
+		Rectangle mainRec = new Rectangle(90, 50, 40, 90);
+		mainRec.setFill(Color.BISQUE);
+		
+		Rectangle mainSideRecLarge = new Rectangle(30, 90);
+		mainSideRecLarge.setFill(Color.BROWN);
+		mainSideRecLarge.xProperty().bind(mainRec.xProperty().add(mainRec.getWidth()));
+		mainSideRecLarge.yProperty().bind(mainRec.yProperty());
+		
+		double widthMiniSq = 7;
+		double widthMiniSideRec = 3;
+		double gap = (mainRec.getWidth() + mainSideRecLarge.getWidth() - 4 * (widthMiniSq + widthMiniSideRec)) / 3;
+		
+		Rectangle miniSq1 = new Rectangle(widthMiniSq, widthMiniSq);
+		miniSq1.xProperty().bind(mainRec.xProperty());
+		miniSq1.yProperty().bind(mainRec.yProperty().subtract(miniSq1.getHeight()));
+		miniSq1.setFill(Color.BISQUE);
+		
+		Rectangle miniSq2 = new Rectangle(widthMiniSq, widthMiniSq);
+		miniSq2.xProperty().bind(miniSq1.xProperty().add(miniSq1.getWidth() + widthMiniSideRec + gap));
+		miniSq2.yProperty().bind(miniSq1.yProperty());
+		miniSq2.setFill(Color.BISQUE);
+		
+		Rectangle miniSq3 = new Rectangle(widthMiniSq, widthMiniSq);
+		miniSq3.xProperty().bind(miniSq2.xProperty().add(miniSq2.getWidth() + widthMiniSideRec + gap));
+		miniSq3.yProperty().bind(miniSq2.yProperty());
+		miniSq3.setFill(Color.BISQUE);
+		
+		Rectangle miniSq4 = new Rectangle(widthMiniSq, widthMiniSq);
+		miniSq4.xProperty().bind(miniSq3.xProperty().add(miniSq3.getWidth() + widthMiniSideRec + gap));
+		miniSq4.yProperty().bind(miniSq3.yProperty());
+		miniSq4.setFill(Color.BISQUE);
+		
+		Rectangle miniSideRec1 = new Rectangle(widthMiniSideRec, widthMiniSq);
+		miniSideRec1.xProperty().bind(miniSq1.xProperty().add(widthMiniSq));
+		miniSideRec1.yProperty().bind(miniSq1.yProperty());
+		miniSideRec1.setFill(Color.BROWN);
+		
+		Rectangle miniSideRec2 = new Rectangle(widthMiniSideRec, widthMiniSq);
+		miniSideRec2.xProperty().bind(miniSq2.xProperty().add(widthMiniSq));
+		miniSideRec2.yProperty().bind(miniSq2.yProperty());
+		miniSideRec2.setFill(Color.BROWN);
+		
+		Rectangle miniSideRec3 = new Rectangle(widthMiniSideRec, widthMiniSq);
+		miniSideRec3.xProperty().bind(miniSq3.xProperty().add(widthMiniSq));
+		miniSideRec3.yProperty().bind(miniSq3.yProperty());
+		miniSideRec3.setFill(Color.BROWN);
+		
+		Rectangle miniSideRec4 = new Rectangle(widthMiniSideRec, widthMiniSq);
+		miniSideRec4.xProperty().bind(miniSq4.xProperty().add(widthMiniSq));
+		miniSideRec4.yProperty().bind(miniSq4.yProperty());
+		miniSideRec4.setFill(Color.BROWN);
+		
+		double doorWidth = 17;
+		double doorHeight = 30;
+		double doorGap = (mainRec.getHeight() - 2 * doorHeight) / 2;
+		
+		Rectangle doorRec1 = new Rectangle(doorWidth, doorHeight);
+		doorRec1.xProperty().bind(mainRec.xProperty().add((mainRec.getWidth() - doorRec1.getWidth()) / 2));
+		doorRec1.yProperty().bind(mainRec.yProperty().add(mainRec.getHeight() - doorRec1.getHeight()));
+		doorRec1.setFill(Color.BROWN);
+		
+		Rectangle doorRec2 = new Rectangle(doorWidth, doorHeight);
+		doorRec2.xProperty().bind(mainRec.xProperty().add((mainRec.getWidth() - doorRec1.getWidth()) / 2));
+		doorRec2.yProperty().bind(doorRec1.yProperty().subtract(doorHeight + doorGap));
+		doorRec2.setFill(Color.BROWN);
+		
+		Pane pane = new Pane();
+		pane.getChildren().addAll(mainRec, mainSideRecLarge, miniSq1, miniSq2, miniSq3, miniSq4, miniSideRec1, miniSideRec2, miniSideRec3, miniSideRec4, doorRec1, doorRec2);
+		
+		WritableImage snapshot = pane.snapshot(new SnapshotParameters(), null);
+		tripleShotTowerImage = new ImageView(snapshot);
+	}
+
+	public ImageView getTripleShotTowerImage()
+    {
+    	return tripleShotTowerImage;
+    }
+
+}
