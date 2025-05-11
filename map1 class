@@ -1,0 +1,69 @@
+// Emine Eslem Uçar-15013065
+import javafx.application.Application;
+import java.util.*;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.Node;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+import javafx.animation.KeyFrame;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+
+public class map1 extends Maps{
+    
+    public static int ROWS = 10;
+    public static int COLUMNS = 10;
+    public static final int ROW_DELAY_MS = 300;
+    private static int[][] pathPoints = {{2,0},
+    										  {2,1},
+    										  {2,2},
+    										  {2,3},
+    										  {3,3},
+    										  {4,3},
+    										  {5,3},
+    										  {5,4},
+    										  {5,5},
+    										  {5,6}, 
+    										  {5,7},
+    										  {5,8},
+    										  {5,9}};
+    
+    //private ArrayList<int[]> outOfPathPoints;
+    
+    public map1()
+    {
+    	super(pathPoints, ROWS, COLUMNS);
+    	animation();
+    }
+    
+    public map1(int[][] pathPoints,int ROWS,int COLUMNS)
+    {
+    	super(pathPoints, ROWS, COLUMNS);
+    	
+    }
+    
+    
+    public void animation() {
+    	super.setCOLUMNS(10);
+    	super.setROWS(10);
+    	super.setPathPoints(pathPoints);
+        super.animation();
+    }
+    
+    public ArrayList<int[]> getOutOfPathPoints()
+    {
+    	super.setPathPoints(pathPoints);
+    	return super.getOutOfPathPoints(pathPoints);
+    }
+    
+ 
+    public int[][] getPathPoints()
+    {
+    	return super.getPathPoints();
+    }
+}
