@@ -1,0 +1,201 @@
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+
+import java.util.ArrayList;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+
+public class Maps extends Group{
+	private int[][] pathPoints;
+	public static final int CELL_SIZE = 40;
+	private int ROWS;
+	private int COLUMNS;
+	private int ROW_DELAY_MS = 300;
+	private ArrayList<int[]> outOfPathPoints;
+	
+	public Maps()
+	{
+		
+	}
+	
+	public Maps(int[][] pathPoints, int ROWS, int COLUMNS)
+	{
+		this.pathPoints = pathPoints;
+		this.ROWS = ROWS;
+		this.COLUMNS = COLUMNS;
+	}
+	
+
+	public void animation()
+	{
+		GridPane gridP = new GridPane();
+        gridP.setAlignment(Pos.CENTER);
+        gridP.setHgap(0.4);
+        gridP.setVgap(0.4);
+        
+        
+        StackPane root = new StackPane();
+        root.getChildren().add(gridP);
+        
+        //create cells before everything 
+        for(int row = 0; row < ROWS; row++) {
+            for(int col = 0; col < COLUMNS; col++) {
+                Rectangle cell = createCell(row, col);
+                gridP.add(cell, col, row);
+                cell.setVisible(false);
+                GridPane.setMargin(cell, new Insets(0.2));
+            }
+        }
+        
+        this.getChildren().add(gridP);
+        
+        Timeline rowT = new Timeline();
+        
+        for(int i = 0; i < ROWS; i++) {
+            final int currentRow = i;
+            KeyFrame rowKey = new KeyFrame(
+                Duration.millis(ROW_DELAY_MS * (i + 1)),
+                event -> {
+                    for(int col = 0; col < COLUMNS; col++) {
+                        for(int k = 0; k < gridP.getChildren().size(); k++) {
+                            Node node = gridP.getChildren().get(k);
+                            if(GridPane.getRowIndex(node) == currentRow && GridPane.getColumnIndex(node) == col) {
+                                Rectangle cell = (Rectangle)node;
+                                cell.setVisible(true);
+                                animateCell(cell);
+                                break;
+                            }
+                        }
+                    }
+                }
+            );
+            rowT.getKeyFrames().add(rowKey);
+        }
+   
+        
+        rowT.play();
+	}
+	
+	//this method is for checking the cells if a cell is path make it bisquite if not call getRandomColor 
+	 public Rectangle createCell(int row, int col) {
+	        Rectangle cell = new Rectangle(CELL_SIZE - 2, CELL_SIZE - 2);
+	        
+	        boolean isPath = false;
+	        for(int i = 0; i < pathPoints.length; i++) {
+	            if(pathPoints[i][0] == row && pathPoints[i][1] == col) {
+	                isPath = true;
+	                break;
+	            }
+	        }
+	        
+	        if(isPath) {
+	            cell.setFill(Color.BISQUE);
+	            cell.setStroke(Color.BISQUE);
+	            cell.setStrokeWidth(0);
+	        } else {
+	            cell.setFill(getRandomColor());
+	        }
+	        
+	        cell.setScaleX(0);
+	        cell.setScaleY(0);
+	        return cell;
+	    }
+	 
+	 
+	//method for animation
+	    public void animateCell(Rectangle cell) {
+	        ScaleTransition scale = new ScaleTransition(Duration.millis(500), cell);
+	        scale.setFromX(0.5);
+	        scale.setFromY(0.5);
+	        scale.setToX(1);
+	        scale.setToY(1);
+	        scale.play();
+	    }
+	    // method for generating random colors
+	    public Color getRandomColor() {
+	   
+	        double red = 0.1 + Math.random() * 0.3; 
+	        double green = 0.7 + Math.random() * 0.3;
+	        double blue = 0.1 + Math.random() * 0.3; 
+	        return new Color(red, green, blue, 1.0);
+	    }
+	    
+	    
+	  //method for getting the points that is not part of the path
+	    public ArrayList<int[]> getOutOfPathPoints(int[][] pathPoints)
+	    {
+	    	outOfPathPoints = new ArrayList<>();
+	    	int index = 0;
+	    	for(int i = 0; i < ROWS; i++)
+	    	{
+
+	    			int row = pathPoints[index][0];
+	    			int column = pathPoints[index][1];
+	    			int[] temp = {row, column} ;
+	    			
+	    			if(pathPoints[i][1] != column && pathPoints[i][0] != row) 
+	    				outOfPathPoints.add(temp);
+	    			
+	    			index++;
+	    			
+	    	}
+	    	
+	    	return outOfPathPoints;
+	    }
+
+		public int[][] getPathPoints() {
+			return pathPoints;
+		}
+
+		public void setPathPoints(int[][] pathPoints) {
+			this.pathPoints = pathPoints;
+		}
+
+		public int getROWS() {
+			return ROWS;
+		}
+
+		public void setROWS(int rOWS) {
+			ROWS = rOWS;
+		}
+
+		public int getCOLUMNS() {
+			return COLUMNS;
+		}
+
+		public void setCOLUMNS(int cOLUMNS) {
+			COLUMNS = cOLUMNS;
+		}
+
+		public int getROW_DELAY_MS() {
+			return ROW_DELAY_MS;
+		}
+
+		public void setROW_DELAY_MS(int rOW_DELAY_MS) {
+			ROW_DELAY_MS = rOW_DELAY_MS;
+		}
+
+		public static int getCellSize() {
+			return CELL_SIZE;
+		}
+
+		public void setOutOfPathPoints(ArrayList<int[]> outOfPathPoints) {
+			this.outOfPathPoints = outOfPathPoints;
+		}
+	    	
+	
+
+}
