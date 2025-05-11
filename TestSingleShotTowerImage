@@ -1,0 +1,91 @@
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.util.Duration;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.animation.*;
+import java.util.*;
+
+public class TestSingleShotTowerImage extends Group{
+	private ImageView singleShotTowerImage;
+	
+	public void image()
+	{
+		Rectangle mainSq = new Rectangle(0, 0, 30, 30);
+		mainSq.setFill(Color.BISQUE);
+		
+		Rectangle mainSideRecMid = new Rectangle(10, 30);
+		mainSideRecMid.setFill(Color.BROWN);
+		mainSideRecMid.xProperty().bind(mainSq.xProperty().add(mainSq.getWidth()));
+		mainSideRecMid.yProperty().bind(mainSq.yProperty());
+		
+		double widthMiniSq = 7;
+		double widthMiniSideRec = 3;
+		double gap = (mainSq.getWidth() + mainSideRecMid.getWidth() - 4 * (widthMiniSq + widthMiniSideRec)) / 3;
+		
+		Rectangle miniSq1 = new Rectangle(widthMiniSq, widthMiniSq);
+		miniSq1.xProperty().bind(mainSq.xProperty());
+		miniSq1.yProperty().bind(mainSq.yProperty().subtract(miniSq1.getHeight()));
+		miniSq1.setFill(Color.BISQUE);
+		
+		Rectangle miniSq2 = new Rectangle(widthMiniSq, widthMiniSq);
+		miniSq2.xProperty().bind(miniSq1.xProperty().add(miniSq1.getWidth() + widthMiniSideRec + gap));
+		miniSq2.yProperty().bind(miniSq1.yProperty());
+		miniSq2.setFill(Color.BISQUE);
+		
+		Rectangle miniSq3 = new Rectangle(widthMiniSq, widthMiniSq);
+		miniSq3.xProperty().bind(miniSq2.xProperty().add(miniSq2.getWidth() + widthMiniSideRec + gap));
+		miniSq3.yProperty().bind(miniSq2.yProperty());
+		miniSq3.setFill(Color.BISQUE);
+		
+		Rectangle miniSq4 = new Rectangle(widthMiniSq, widthMiniSq);
+		miniSq4.xProperty().bind(miniSq3.xProperty().add(miniSq3.getWidth() + widthMiniSideRec + gap));
+		miniSq4.yProperty().bind(miniSq3.yProperty());
+		miniSq4.setFill(Color.BISQUE);
+		
+		Rectangle miniSideRec1 = new Rectangle(widthMiniSideRec, widthMiniSq);
+		miniSideRec1.xProperty().bind(miniSq1.xProperty().add(widthMiniSq));
+		miniSideRec1.yProperty().bind(miniSq1.yProperty());
+		miniSideRec1.setFill(Color.BROWN);
+		
+		Rectangle miniSideRec2 = new Rectangle(widthMiniSideRec, widthMiniSq);
+		miniSideRec2.xProperty().bind(miniSq2.xProperty().add(widthMiniSq));
+		miniSideRec2.yProperty().bind(miniSq2.yProperty());
+		miniSideRec2.setFill(Color.BROWN);
+		
+		Rectangle miniSideRec3 = new Rectangle(widthMiniSideRec, widthMiniSq);
+		miniSideRec3.xProperty().bind(miniSq3.xProperty().add(widthMiniSq));
+		miniSideRec3.yProperty().bind(miniSq3.yProperty());
+		miniSideRec3.setFill(Color.BROWN);
+		
+		Rectangle miniSideRec4 = new Rectangle(widthMiniSideRec, widthMiniSq);
+		miniSideRec4.xProperty().bind(miniSq4.xProperty().add(widthMiniSq));
+		miniSideRec4.yProperty().bind(miniSq4.yProperty());
+		miniSideRec4.setFill(Color.BROWN);
+		
+		Rectangle doorRec = new Rectangle(mainSq.getHeight() / 3 ,mainSq.getHeight() / 2);
+		doorRec.xProperty().bind(mainSq.xProperty().add((mainSq.getWidth() - doorRec.getWidth()) / 2));
+		doorRec.yProperty().bind(mainSq.yProperty().add(mainSq.getHeight() - doorRec.getHeight()));
+		doorRec.setFill(Color.BROWN);
+		
+		Pane pane = new Pane();
+		pane.getChildren().addAll(mainSq, mainSideRecMid, miniSq1, miniSq2, miniSq3, miniSq4, miniSideRec1, miniSideRec2, miniSideRec3, miniSideRec4, doorRec);
+		
+		WritableImage snapshot = pane.snapshot(new SnapshotParameters(), null);
+		singleShotTowerImage = new ImageView(snapshot);
+		
+	}
+	
+	public ImageView getSingleShotTowerImage()
+	{
+		return singleShotTowerImage;
+	}
+	
+
+}
