@@ -1,0 +1,110 @@
+import javafx.application.*;
+import javafx.stage.*;
+import javafx.util.Duration;
+import javafx.scene.*;
+import javafx.scene.shape.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.animation.*;
+import java.util.*;
+
+public class LevelOne extends Application{
+	@Override
+	public void start(Stage primaryStage)
+	{
+		BorderPane mainPane = new BorderPane();
+		StackPane mapPane = new StackPane();
+		VBox vbox = new VBox();
+		
+		map1 map1 = new map1();
+		mapPane.getChildren().add(map1);
+		
+		Button singleShotButton = new Button();
+		TestSingleShotTowerImage sstImage = new TestSingleShotTowerImage();
+		sstImage.image();
+		ImageView singleShotTowerImage = sstImage.getSingleShotTowerImage();
+		singleShotButton.setGraphic(sstImage.getSingleShotTowerImage());
+		singleShotButton.setPrefSize(100, 100);
+		singleShotButton.setText("Single Shot Tower");
+		singleShotButton.setContentDisplay(ContentDisplay.TOP);
+		vbox.getChildren().add(singleShotButton);
+		
+		ImageView dragImage = new ImageView(singleShotTowerImage.getImage());
+		dragImage.setFitWidth(singleShotTowerImage.getFitWidth());
+		dragImage.setFitHeight(singleShotTowerImage.getFitHeight());
+		singleShotButton.setOnMousePressed(e ->
+		{
+			dragImage.setX(e.getX());
+			dragImage.setY(e.getY());
+			
+			mainPane.getChildren().add(dragImage);
+			
+		});
+		
+		dragImage.setOnMouseDragged(event ->
+		{
+			if(dragImage != null)
+			{
+				dragImage.setX(event.getX());
+				dragImage.setY(event.getY());
+			}
+		});
+		
+		dragImage.setOnMouseReleased(event2 ->
+		{
+			double mouseX = event2.getSceneX();
+			double mouseY = event2.getSceneY();
+			double x = 40;
+			double y = 40;
+			
+			for(int[] tile : map1.getOutOfPathPoints())
+			{
+				int row = tile[0];
+				int col = tile[1];
+				
+				double tileRight = (col + 1) * map1.CELL_SIZE;
+				double tileLeft = col * map1.CELL_SIZE;
+				double tileTop = row * map1.CELL_SIZE;
+				double tileBottom = (row + 1) * map1.CELL_SIZE;
+				
+				if(mouseX <= tileRight && mouseX >= tileLeft &&
+						mouseY >= tileTop && mouseY <= tileBottom)
+				{
+					x = tileLeft+ map1.CELL_SIZE / 2;
+					y = tileTop + map1.CELL_SIZE / 2;
+					break;
+				}
+				
+				
+			}
+			
+			dragImage.setX(x);
+			dragImage.setY(y);
+		});
+		
+		
+		
+		
+		mainPane.setRight(vbox);
+		mapPane.setAlignment(Pos.CENTER);
+		mainPane.setCenter(mapPane);
+		
+		Scene scene = new Scene(mainPane, 1000, 800);
+		primaryStage.setScene(scene);
+		primaryStage.setTitle("LEVEL 1");
+		primaryStage.show();
+		
+		
+	}
+	
+	public static void main(String[] args)
+	{
+		launch(args);
+	}
+
+}
