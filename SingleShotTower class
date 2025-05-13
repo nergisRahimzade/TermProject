@@ -8,6 +8,7 @@ import javafx.scene.shape.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.control.*;
+import javafx.scene.image.*;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.animation.*;
@@ -26,6 +27,13 @@ public class SingleShotTower extends Tower{
 	
 	private ArrayList<double[]> towerCoordinates;
 	
+	private Pane pane = new Pane();
+	
+	private ImageView towerImage;
+	TestSingleShotTowerImage temp = new TestSingleShotTowerImage();
+	
+	
+	
 	//a default constructor for Single Shot Tower type
 	public SingleShotTower()
 	{
@@ -33,6 +41,10 @@ public class SingleShotTower extends Tower{
 		towerY = 0;
 		rangeRadius = 30;
 		price = 50;
+		super.showRange(this);
+		temp.image();
+		towerImage = temp.getSingleShotTowerImage();
+		
 	}
 	
 	//a constructor which only takes the coordinate values as parameters
@@ -40,6 +52,7 @@ public class SingleShotTower extends Tower{
 	//setter methods for price and rangeRadius properties, the reason is they do not need to be changed and they will have constant values
 	public SingleShotTower(double towerX, double towerY)
 	{
+		this();
 		this.towerX = towerX;
 		this.towerY = towerY;
 		rangeRadius = 30;
@@ -92,13 +105,14 @@ public class SingleShotTower extends Tower{
 	//this method shoots the nearest enemy to the tower position
 	public Node shootEnemy(Enemy enemy)
 	{
+		System.out.println("Inside shootEnemy");
 		double startX = towerX;
 		double startY = towerY;
 		double targetX = enemy.getX();
 		double targetY = enemy.getY();
 		
 		//creating a bullet object for Single Shot Tower
-		Bullet bullet = new Bullet(startX, startY, targetX, targetY, 10);
+		Bullet bullet = new Bullet(startX, startY, targetX, targetY, 0);
 		
 		//creating a pane for nodes
 		Pane pane = new Pane();
@@ -138,6 +152,10 @@ public class SingleShotTower extends Tower{
 				bullet.setEndY(bullet.getEndY() + vy * speed); 
 				
 			}
+			else
+			{
+				pane.getChildren().remove(bullet);
+			}
 		}));
 		
 		
@@ -150,13 +168,12 @@ public class SingleShotTower extends Tower{
 		
 	}
 	
-	//FIND OUT HOW TO MAKE THE WAVE CLASS VISIBLE
-	//creates a kind of a animation frame every 16 milliseconds that will show the bullets and the enemy wave
+	
 	ArrayList<Enemy> currentEnemies = new ArrayList<>();
-	public void gameloop(int enemyCount, double timeBetweenSpawns, int enemyHealth, 
-			double enemySpeed, int enemySize, Color enemyColor, int delayTime) //A PROBLEM HERE - how can i create a gameloop class that does not take Enemy object as a parameter
+	public void gameloop(int enemyCount, double timeBetweenSpawns, 
+			double enemySpeed, int enemySize, int delayTime) 
 	{	
-		WaveDefinition wave = new WaveDefinition(enemyCount, timeBetweenSpawns, enemyHealth, enemySpeed, enemySize, enemyColor, delayTime);
+		WaveDefinition wave = new WaveDefinition(enemyCount, timeBetweenSpawns, enemySpeed, enemySize, delayTime);
 
 		Pane gamePane = new Pane();
 		
@@ -170,7 +187,6 @@ public class SingleShotTower extends Tower{
 		{	
 			if(currentEnemies != null)
 			{
-				
 				
 				//removes the enemy both from the ArrayList and the pane if it is not alive
 				for(Enemy currentEnemy : currentEnemies)
@@ -194,17 +210,16 @@ public class SingleShotTower extends Tower{
 				// make currentEnemies as the next wave of enemies
 				if(currentEnemies.stream().allMatch(currentEnemy -> !currentEnemy.isActive() || currentEnemy.hasReachedEnd()) || currentEnemies.isEmpty())
 				{
-					/*if(wave.hasMoreWaves())
+					if(wave.getCurrentWave() < wave.getTotalWaves())
 					{
-						currentEnemies = wave.getEnemy(wave);
+						wave.startNextWave();
+						currentEnemies = wave.getActiveEnemies();
 						for(int i = 0; i < currentEnemies.size(); i++)
 							gamePane.getChildren().add((Enemy)(currentEnemies.get(i)));
 					}
 					else
-						System.out.println("All waves completed!");*/
+						System.out.println("All waves completed!");
 					
-					
-					currentEnemies = wave.getEnemy(wave);
 					for(int i = 0; i < currentEnemies.size(); i++)
 						gamePane.getChildren().add((Enemy)(currentEnemies.get(i)));
 				}
@@ -231,86 +246,23 @@ public class SingleShotTower extends Tower{
 		gameloop.setCycleCount(Timeline.INDEFINITE);
 		gameloop.play();
 		
+		
 	}
 	
-	map2 temp = new map2();
-	ArrayList<int[]> outOfPathPoints = temp.getOutOfPathPoints(); 
 	
-	//places the tower after the user dragges the tower
-		public void placeTower()
-		{
-			SingleShotTower tower = new SingleShotTower();
-			
-			towerCoordinates = new ArrayList<>();
-			
-			Pane pane = new Pane();
-			pane.getChildren().add(tower);
-			
-			tower.setOnMouseDragged(e -> 
-			{
-				tower.setX(e.getX());
-				tower.setY(e.getY());
-				tower.showRange(tower);
-			});
-			
-			tower.setOnMouseReleased(e ->
-			{
-				double mouseX = e.getX();
-				double mouseY = e.getY();
-				boolean isValidPlacement = false;
-				
-				double bestTileX = 0;
-				double bestTileY = 0;
-				
-				for(int[] tile : outOfPathPoints)
-				{
-					int row = tile[0];
-					int col = tile[1];
-					
-					double tileLeftLimit = col * mappp1.CELL_SIZE;
-					double tileRightLimit = (col + 1) * mappp1.CELL_SIZE;
-					double tileBottomLimit = row * mappp1.CELL_SIZE;
-					double tileTopLimit = (row + 1) * mappp1.CELL_SIZE;
-					
-					if(mouseX >= tileLeftLimit && mouseX <= tileRightLimit
-							&& mouseY >= tileBottomLimit && mouseY <= tileTopLimit)
-					{
-						bestTileX = col * mappp1.CELL_SIZE + mappp1.CELL_SIZE / 2;
-						bestTileY = row * mappp1.CELL_SIZE + mappp1.CELL_SIZE / 2;
-						isValidPlacement = isValidPlacement(bestTileX, bestTileY);
-						double[] temp = {bestTileX, bestTileY};
-						towerCoordinates.add(temp);
-						break;
-					}
-					
-				}
-				
-				
-				if(isValidPlacement)
-				{
-					tower.setX(bestTileX);
-					tower.setY(bestTileY);
-				}
-				
-				else
-				{
-					pane.getChildren().remove(tower);
-				}
-			});
-			
-			
+		
+	public ImageView getTowerImage() {
+			return towerImage;
 		}
-		
-	public int levelNumber()
-	{
-		TermProjectTest1 t = new TermProjectTest1();
-		ArrayList<Integer> temp = t.getCurrentLevel();
-		
-		return temp.get(temp.size() - 1);
-		
-	}
-		
-	
+
+		public void setTowerImage(ImageView towerImage) {
+			this.towerImage = towerImage;
+		}
+
+		public void setTowerCoordinates(ArrayList<double[]> towerCoordinates) {
+			this.towerCoordinates = towerCoordinates;
+		}
+
 	//General getter and setter methods
 	public double getTowerX() {
 		return towerX;
@@ -333,7 +285,12 @@ public class SingleShotTower extends Tower{
 	}
 
 	public int getPrice() {
-		return price;
+		return super.getPrice();
+	}
+	
+	public void setPrice()
+	{
+		super.setPrice(price);
 	}
 	
 	public ArrayList<double[]> getTowerCoordinates()
