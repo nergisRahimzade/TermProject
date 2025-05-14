@@ -71,6 +71,7 @@ public class MissileLauncherTower extends Tower{
 	//this method shoots the nearest enemy to the tower position
 	public Node shootEnemies(ArrayList<Enemy> enemies)
 	{
+		GameLogic gameLogic = new GameLogic();
 		double startX = towerX;
 		double startY = towerY;
 		Enemy enemy = enemies.get(0);
@@ -97,6 +98,7 @@ public class MissileLauncherTower extends Tower{
 			{
 				    //killing all enemies inside the range
 					enemies.forEach(eachEnemy -> eachEnemy.setActive(false));
+					gameLogic.updateInfo();
 					//bulletTimeline.stop(); //?? why are we stopping the bulletTimeline
 					
 					//if Enemys are dead after shooting remove the bullet from the pane so that it is not visible anymore and use the explosionEffect
@@ -258,4 +260,9 @@ public class MissileLauncherTower extends Tower{
 	{
 		return towerCoordinates;
 	}
+	public void addTowerCoordinates(double[] coord)
+	{
+		towerCoordinates.add(coord);
+	}
+	
 }
