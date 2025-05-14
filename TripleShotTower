@@ -80,7 +80,7 @@ public class TripleShotTower extends Tower{
 	//takes the enemiesInRange ArrayList created in findEnemies as a parameter
 	public List<Node> shootEnemies(ArrayList<Enemy> enemies)
 	{
-		
+		GameLogic gameLogic = new GameLogic();
 		List<Node> list = new ArrayList<>();
 		double startX = towerX;
 		double startY = towerY;
@@ -106,6 +106,7 @@ public class TripleShotTower extends Tower{
 					if(enemy.isActive() && distance < 5 && enemy != null)
 					{
 						enemy.damage(15);
+						gameLogic.updateInfo();
 						list.add(bullet);
 						for(Node node : list)
 							pane.getChildren().add(node); //maybe this for loop is not needed since we are already adding the Bullet to the pane before adding
@@ -271,5 +272,10 @@ public class TripleShotTower extends Tower{
 	{
 		return towerCoordinates;
 	}
+	public void addTowerCoordinates(double[] coord)
+	{
+		towerCoordinates.add(coord);
+	}
+	
 
 }
