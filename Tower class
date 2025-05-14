@@ -16,6 +16,7 @@ public abstract class Tower extends Group{
 	//tower's coordinate properties
 	private double towerX;
 	private double towerY;
+	private int price;
 
 
 	//default Tower type object; even though abstract class' objects cannot be created by "new" keyword, this constructor was put just in case:)
@@ -27,14 +28,14 @@ public abstract class Tower extends Group{
 	
 	
 	//shows the range of tower when user is dragging it
-	public void showRange(Tower tower)
+	public Circle showRange(Tower tower)
 	{
 		//creating a circle for the range 
 		Circle circle = new Circle(tower.getX(), tower.getY(), 100);
 		circle.setFill(Color.color(1, 0.6, 0.6, 0.8));
 		
-		Pane pane = new Pane();
-		pane.getChildren().add(circle);
+		
+		return circle;
 		
 	}
 	
@@ -82,6 +83,16 @@ public abstract class Tower extends Group{
 
 	public void setY(double towerY) {
 		this.towerY = towerY;
+	}
+	
+	public void setPrice(int price)
+	{
+		this.price = price;
+	}
+	
+	public int getPrice()
+	{
+		return price;
 	}
 	
 /*	private Rectangle towerVisual;
