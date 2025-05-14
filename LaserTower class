@@ -76,6 +76,7 @@ public class LaserTower extends Tower{
 	// lasers are returned in Node type for them to be able to added to Pane
 	public List<Node> shootEnemies(ArrayList<Enemy> enemies)
 	{
+		GameLogic gameLogic = new GameLogic();
 		List<Node> list = new ArrayList<>();
 		
 		//Pane created to add the Laser objects and make them visible on Scene
@@ -105,6 +106,7 @@ public class LaserTower extends Tower{
 					if(enemy.isActive() && distance < 5 && enemy != null)
 					{
 						enemy.damage(5);
+						gameLogic.updateInfo();
 						list.add(laser);
 						pane.getChildren().add(laser);
 						
@@ -272,7 +274,11 @@ public class LaserTower extends Tower{
 	{
 		return towerCoordinates;
 	}
-	
+
+	public void addTowerCoordinates(double[] coord)
+	{
+		towerCoordinates.add(coord);
+	}
 	
 
 
