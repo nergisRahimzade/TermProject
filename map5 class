@@ -8,6 +8,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
@@ -27,6 +30,19 @@ public class map5 extends Maps {
     									      {4,12},{5,12},{6,12},{7,12},{8,12},{9,12},{10,12},{11,12},
     									      {12,12},{12,13},{12,14}};
     
+    public map5()
+    {
+    	super(pathPoints, ROWS, COLUMNS);
+    	animation();
+    }
+    
+    public map5(int[][] pathPoints,int ROWS,int COLUMNS)
+    {
+    	super(pathPoints, ROWS, COLUMNS);
+    	
+    }
+    
+    
     public void animation() {
     	super.setCOLUMNS(15);
     	super.setROWS(15);
@@ -34,5 +50,16 @@ public class map5 extends Maps {
         super.animation();
     }
     
+    public ArrayList<int[]> getOutOfPathPoints()
+    {
+    	super.setPathPoints(pathPoints);
+    	return super.getOutOfPathPoints(pathPoints);
+    }
+    
+ 
+    public int[][] getPathPoints()
+    {
+    	return super.getPathPoints();
+    }
 
 }
