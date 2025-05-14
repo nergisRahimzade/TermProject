@@ -25,6 +25,7 @@ public class Maps extends Group{
 	private int COLUMNS;
 	private int ROW_DELAY_MS = 300;
 	private ArrayList<int[]> outOfPathPoints;
+
 	
 	public Maps()
 	{
@@ -138,20 +139,24 @@ public class Maps extends Group{
 	    public ArrayList<int[]> getOutOfPathPoints(int[][] pathPoints)
 	    {
 	    	outOfPathPoints = new ArrayList<>();
-	    	int index = 0;
-	    	for(int i = 0; i < ROWS; i++)
-	    	{
+	    	for (int row = 0; row < ROWS; row++) {
+	            for (int col = 0; col < COLUMNS; col++) {
+	                boolean isPath = false;
 
-	    			int row = pathPoints[index][0];
-	    			int column = pathPoints[index][1];
-	    			int[] temp = {row, column} ;
-	    			
-	    			if(pathPoints[i][1] != column && pathPoints[i][0] != row) 
-	    				outOfPathPoints.add(temp);
-	    			
-	    			index++;
-	    			
-	    	}
+	                // Check if this (row, col) is part of the path
+	                for (int i = 0; i < pathPoints.length; i++) {
+	                    if (pathPoints[i][0] == row && pathPoints[i][1] == col) {
+	                        isPath = true;
+	                        break;
+	                    }
+	                }
+
+	                // If not part of the path, add to outOfPathPoints
+	                if (!isPath) {
+	                    outOfPathPoints.add(new int[] { row, col });
+	                }
+	            }
+	        }
 	    	
 	    	return outOfPathPoints;
 	    }
@@ -195,6 +200,8 @@ public class Maps extends Group{
 		public void setOutOfPathPoints(ArrayList<int[]> outOfPathPoints) {
 			this.outOfPathPoints = outOfPathPoints;
 		}
+		
+		
 	    	
 	
 
