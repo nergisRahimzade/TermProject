@@ -1,4 +1,5 @@
 //Nergiz Rahimzade 150124055
+
 //This class belongs to Laser Tower and contains it's related method(s)/constructor(s)/properties 
 //Details about methods are given above them and inside methods if needed
 import javafx.application.*;
@@ -25,6 +26,7 @@ public class LaserTower extends Tower{
 	//price of the tower
 	private int price;
 	
+	//an ArrayList that contains coordinates of placed towers
 	ArrayList<double[]> towerCoordinates;
 	
 	//a default constructor with given default values
@@ -142,14 +144,15 @@ public class LaserTower extends Tower{
 	
 	//this method is created to make the enemy Waves visible and check the enemies every 16 milliseconds
 	ArrayList<Enemy> enemies = new ArrayList<>();
-	public void gameloop(Enemy enemy)
+	public void gameloop(int enemyCount, double timeBetweenSpawns, 
+			double enemySpeed, int enemySize, int delayTime)
 	{
-		WaveManager wave = new WaveManager(enemy.getPathCoordinates(), enemy.getTileSize());
+		WaveDefinition wave = new WaveDefinition(enemyCount, timeBetweenSpawns, enemySpeed, enemySize, delayTime);
 		Pane gamePane = new Pane();
 		
 		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), event ->
 		{
-			enemies = wave.getNextWave();		
+			enemies = wave.getActiveEnemies();		
 			
 			if(enemies != null)
 			{
@@ -174,9 +177,10 @@ public class LaserTower extends Tower{
 				//-> give the next Enemy wave
 				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()) || enemies.isEmpty()) // && the user has still life
 				{
-					if(wave.hasMoreWaves())
+					if(wave.getCurrentWave() < wave.getTotalWaves())
 					{
-						enemies = wave.getNextWave();
+						wave.startNextWave();
+						enemies = wave.getActiveEnemies();
 						for(Enemy eachEnemy : enemies)
 						{
 							gamePane.getChildren().add(eachEnemy);
@@ -212,70 +216,26 @@ public class LaserTower extends Tower{
 	}
 	
 	
-	//places the tower after the user dragges the tower
-			public void placeTower()
-			{
-				LaserTower tower = new LaserTower();
-				
-				towerCoordinates = new ArrayList<>();
-				
-				Pane pane = new Pane();
-				pane.getChildren().add(tower);
-				
-				tower.setOnMouseDragged(e -> 
-				{
-					tower.setX(e.getX());
-					tower.setY(e.getY());
-					tower.showRange(tower);
-				});
-				
-				tower.setOnMouseReleased(e ->
-				{
-					double mouseX = e.getX();
-					double mouseY = e.getY();
-					boolean isValidPlacement = false;
-					
-					double bestTileX = 0;
-					double bestTileY = 0;
-					
-					for(int[] tile : getDarkYellowTiles)
-					{
-						int row = tile[0];
-						int col = tile[1];
-						
-						double tileLeftLimit = col * getCellSize;
-						double tileRightLimit = (col + 1) * getCellSize;
-						double tileBottomLimit = row * getCellSize;
-						double tileTopLimit = (row + 1) * getCellSize;
-						
-						if(mouseX >= tileLeftLimit && mouseX <= tileRightLimit
-								&& mouseY >= tileBottomLimit && mouseY <= tileTopLimit)
-						{
-							bestTileX = col * getCellSize + getCellSize / 2;
-							bestTileY = row * getCellSize + getCellSize / 2;
-							isValidPlacement = isValidPlacement(bestTileX, bestTileY);
-							double[] temp = {bestTileX, bestTileY};
-							towerCoordinates.add(temp);
-							break;
-						}
-						
-					}
-					
-					
-					if(isValidPlacement)
-					{
-						tower.setX(bestTileX);
-						tower.setY(bestTileY);
-					}
-					
-					else
-					{
-						pane.getChildren().remove(tower);
-					}
-				});
-				
-				
-			}
+	
+			
+	public boolean isValidPlacement(LaserTower tower, ArrayList<double[]> coord)
+	{
+		GameLogic gameLogic = new GameLogic();
+		
+		for(int i = 0; i < coord.size(); i++)
+		{
+			double x = (coord.get(i))[0];
+			double y = (coord.get(i))[0];
+			
+			if(tower.getX() != x && tower.getY() != y 
+					&& gameLogic.getMoney() >= tower.price && gameLogic.getLives() > 0)
+				return true;
+			
+		}
+		
+		return false;
+		
+	}
 	
 	//General getter and setter methods
 	public double getX() {
@@ -299,15 +259,21 @@ public class LaserTower extends Tower{
 		return rangeRadius;
 	}
 	
-	public int getPrice()
+	public int getPrice() {
+		return super.getPrice();
+	}
+	
+	public void setPrice()
 	{
-		return price;
+		super.setPrice(price);
 	}
 	
 	public ArrayList<double[]> getTowerCoordinates()
 	{
 		return towerCoordinates;
 	}
+	
+	
 
 
 }
