@@ -1,4 +1,5 @@
 //Nergiz Rahimzade 150124055
+
 import javafx.application.*;
 import javafx.stage.*;
 import javafx.util.Duration;
@@ -42,6 +43,39 @@ public class LevelOne extends Application {
         singleShotButton.setText("Single Shot Tower");
         singleShotButton.setContentDisplay(ContentDisplay.TOP);
         vbox.getChildren().add(singleShotButton);
+        
+        LaserTower lt = new LaserTower();
+        Button laserTowerButton = new Button();
+        TestLaserShotTowerImage ltImage = new TestLaserShotTowerImage();
+        ltImage.image();
+        ImageView laserTowerImage = ltImage.getLaserTowerImage();
+        laserTowerButton.setGraphic(laserTowerImage);
+        laserTowerButton.setPrefSize(100, 100);
+        laserTowerButton.setText("Laser Tower");
+        laserTowerButton.setContentDisplay(ContentDisplay.TOP);
+        vbox.getChildren().add(laserTowerButton);
+        
+        TripleShotTower tst = new TripleShotTower();
+        Button tripleShotButton = new Button();
+        TestTripleShotTowerImage tstImage = new TestTripleShotTowerImage();
+        tstImage.image();
+        ImageView tripleShotTowerImage = tstImage.getTripleShotTowerImage();
+        tripleShotButton.setGraphic(tripleShotTowerImage);
+        tripleShotButton.setPrefSize(100, 100);
+        tripleShotButton.setText("Triple Shot Tower");
+        tripleShotButton.setContentDisplay(ContentDisplay.TOP);
+        vbox.getChildren().add(tripleShotButton);
+        
+        MissileLauncherTower mlt = new MissileLauncherTower(); 
+        Button missileLauncherButton = new Button();
+        TestMissileLauncherTowerImage mltImage = new TestMissileLauncherTowerImage();
+        mltImage.image();
+        ImageView missileLauncherTowerImage = mltImage.getMissileLauncherTowerImage();
+        missileLauncherButton.setGraphic(missileLauncherTowerImage);
+        missileLauncherButton.setPrefSize(100, 100);
+        missileLauncherButton.setText("Missile Launcher Tower");
+        missileLauncherButton.setContentDisplay(ContentDisplay.TOP);
+        vbox.getChildren().add(missileLauncherButton);
 
         singleShotButton.setOnMousePressed(e -> {
             ImageView dragImage = new ImageView(singleShotTowerImage.getImage());
@@ -97,6 +131,171 @@ public class LevelOne extends Application {
              
         });
 
+        
+        laserTowerButton.setOnMousePressed(e -> {
+            ImageView dragImage = new ImageView(laserTowerImage.getImage());
+            dragImage.setFitWidth(laserTowerImage.getFitWidth());
+            dragImage.setFitHeight(laserTowerImage.getFitHeight());
+            dragImage.setX(e.getSceneX());
+            dragImage.setY(e.getSceneY());
+            mainPane.getChildren().add(dragImage);
+
+            dragImage.setOnMouseDragged(event -> {
+                if (dragImage != null) {
+                    dragImage.setX(event.getSceneX());
+                    dragImage.setY(event.getSceneY());
+                }
+            });
+
+            dragImage.setOnMouseReleased(event2 -> {
+                Point2D localPoint = map1.sceneToLocal(event2.getSceneX(), event2.getSceneY());
+                double mouseX = localPoint.getX();
+                double mouseY = localPoint.getY();
+                double x = dragImage.getX();
+                double y = dragImage.getY();
+
+                for (int[] tile : map1.getOutOfPathPoints()) {
+                    int row = tile[0];
+                    int col = tile[1];
+
+                    double tileRight = (col + 1) * map1.CELL_SIZE;
+                    double tileLeft = col * map1.CELL_SIZE;
+                    double tileTop = row * map1.CELL_SIZE;
+                    double tileBottom = (row + 1) * map1.CELL_SIZE;
+
+                    if (mouseX <= tileRight && mouseX >= tileLeft &&
+                        mouseY >= tileTop && mouseY <= tileBottom) {
+                        x = tileLeft + map1.CELL_SIZE / 2 - dragImage.getFitWidth() / 2;
+                        y = tileTop + map1.CELL_SIZE / 2 - dragImage.getFitHeight() / 2;
+                        isValidPlacement = isValidPlacement(lt, map1);
+                        break;
+                    }
+                }
+
+                if (isValidPlacement) {
+                    dragImage.setX(x - dragImage.getFitWidth() / 2);
+                    dragImage.setY(y - dragImage.getFitHeight() / 2);
+                    double[] temp = {dragImage.getX(), dragImage.getY()};
+                    gameLoop(5, 2.0, 1.0, 20, 0);
+                } else {
+                    mapPane.getChildren().remove(dragImage);
+                }
+                
+            });
+            
+             
+        });
+        
+        
+        tripleShotButton.setOnMousePressed(e -> {
+            ImageView dragImage = new ImageView(tripleShotTowerImage.getImage());
+            dragImage.setFitWidth(tripleShotTowerImage.getFitWidth());
+            dragImage.setFitHeight(tripleShotTowerImage.getFitHeight());
+            dragImage.setX(e.getSceneX());
+            dragImage.setY(e.getSceneY());
+            mainPane.getChildren().add(dragImage);
+
+            dragImage.setOnMouseDragged(event -> {
+                if (dragImage != null) {
+                    dragImage.setX(event.getSceneX());
+                    dragImage.setY(event.getSceneY());
+                }
+            });
+
+            dragImage.setOnMouseReleased(event2 -> {
+                Point2D localPoint = map1.sceneToLocal(event2.getSceneX(), event2.getSceneY());
+                double mouseX = localPoint.getX();
+                double mouseY = localPoint.getY();
+                double x = dragImage.getX();
+                double y = dragImage.getY();
+
+                for (int[] tile : map1.getOutOfPathPoints()) {
+                    int row = tile[0];
+                    int col = tile[1];
+
+                    double tileRight = (col + 1) * map1.CELL_SIZE;
+                    double tileLeft = col * map1.CELL_SIZE;
+                    double tileTop = row * map1.CELL_SIZE;
+                    double tileBottom = (row + 1) * map1.CELL_SIZE;
+
+                    if (mouseX <= tileRight && mouseX >= tileLeft &&
+                        mouseY >= tileTop && mouseY <= tileBottom) {
+                        x = tileLeft + map1.CELL_SIZE / 2 - dragImage.getFitWidth() / 2;
+                        y = tileTop + map1.CELL_SIZE / 2 - dragImage.getFitHeight() / 2;
+                        isValidPlacement = isValidPlacement(tst, map1);
+                        break;
+                    }
+                }
+
+                if (isValidPlacement) {
+                    dragImage.setX(x - dragImage.getFitWidth() / 2);
+                    dragImage.setY(y - dragImage.getFitHeight() / 2);
+                    double[] temp = {dragImage.getX(), dragImage.getY()};
+                    gameLoop(5, 2.0, 1.0, 20, 0);
+                } else {
+                    mapPane.getChildren().remove(dragImage);
+                }
+                
+            });
+            
+             
+        });
+        
+        
+        
+        missileLauncherButton.setOnMousePressed(e -> {
+            ImageView dragImage = new ImageView(missileLauncherTowerImage.getImage());
+            dragImage.setFitWidth(missileLauncherTowerImage.getFitWidth());
+            dragImage.setFitHeight(missileLauncherTowerImage.getFitHeight());
+            dragImage.setX(e.getSceneX());
+            dragImage.setY(e.getSceneY());
+            mainPane.getChildren().add(dragImage);
+
+            dragImage.setOnMouseDragged(event -> {
+                if (dragImage != null) {
+                    dragImage.setX(event.getSceneX());
+                    dragImage.setY(event.getSceneY());
+                }
+            });
+
+            dragImage.setOnMouseReleased(event2 -> {
+                Point2D localPoint = map1.sceneToLocal(event2.getSceneX(), event2.getSceneY());
+                double mouseX = localPoint.getX();
+                double mouseY = localPoint.getY();
+                double x = dragImage.getX();
+                double y = dragImage.getY();
+
+                for (int[] tile : map1.getOutOfPathPoints()) {
+                    int row = tile[0];
+                    int col = tile[1];
+
+                    double tileRight = (col + 1) * map1.CELL_SIZE;
+                    double tileLeft = col * map1.CELL_SIZE;
+                    double tileTop = row * map1.CELL_SIZE;
+                    double tileBottom = (row + 1) * map1.CELL_SIZE;
+
+                    if (mouseX <= tileRight && mouseX >= tileLeft &&
+                        mouseY >= tileTop && mouseY <= tileBottom) {
+                        x = tileLeft + map1.CELL_SIZE / 2 - dragImage.getFitWidth() / 2;
+                        y = tileTop + map1.CELL_SIZE / 2 - dragImage.getFitHeight() / 2;
+                        isValidPlacement = isValidPlacement(mlt, map1);
+                        break;
+                    }
+                }
+
+                if (isValidPlacement) {
+                    dragImage.setX(x - dragImage.getFitWidth() / 2);
+                    dragImage.setY(y - dragImage.getFitHeight() / 2);
+                    double[] temp = {dragImage.getX(), dragImage.getY()};
+                    gameLoop(5, 2.0, 1.0, 20, 0);
+                } else {
+                    mapPane.getChildren().remove(dragImage);
+                }
+                
+            });
+            
+             
+        });
         
         enemyCreator = new EnemyCreator(map1);
         Timeline enemyAnimation = new Timeline(new KeyFrame(Duration.millis(16), e -> {
