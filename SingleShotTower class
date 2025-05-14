@@ -105,6 +105,7 @@ public class SingleShotTower extends Tower{
 	//this method shoots the nearest enemy to the tower position
 	public Node shootEnemy(Enemy enemy)
 	{
+		GameLogic gameLogic = new GameLogic();
 		System.out.println("Inside shootEnemy");
 		double startX = towerX;
 		double startY = towerY;
@@ -121,8 +122,8 @@ public class SingleShotTower extends Tower{
 		
 		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
-			double dx = targetX - startX;
-			double dy = targetY - startY;
+			double dx = targetX - bullet.getEndX();
+			double dy = targetY - bullet.getEndY();
 			double distance = Math.sqrt(dx * dx + dy * dy);
 			
 			//if the bullet hits the enemy (5 is the number of pixels of threshold/offset) and the enemy is alive - we already gave the Enemy parameter that is
@@ -130,6 +131,7 @@ public class SingleShotTower extends Tower{
 			if(distance < 5 && enemy != null && enemy.isActive())
 			{
 					enemy.damage(10);
+					gameLogic.updateInfo();
 					//bulletTimeline.stop(); //?? why are we stopping the bulletTimeline
 					
 					//if Enemy is dead after shooting remove the bullet from the pane so that it is not visible anymore and use the explosionEffect
@@ -296,6 +298,10 @@ public class SingleShotTower extends Tower{
 	public ArrayList<double[]> getTowerCoordinates()
 	{
 		return towerCoordinates;
+	}
+	public void addTowerCoordinates(double[] coord)
+	{
+		towerCoordinates.add(coord);
 	}
 
 	
