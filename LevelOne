@@ -1,5 +1,5 @@
 //Nergiz Rahimzade 150124055
-
+//This is created for Level 1 on the game
 import javafx.application.*;
 import javafx.stage.*;
 import javafx.util.Duration;
@@ -16,75 +16,127 @@ import java.util.*;
 
 
 public class LevelOne extends Application {
+	//boolean variable that indicates whether tower is can be placed or not
     private boolean isValidPlacement;
-    private SingleShotTower sst;
+   
+    //a pane to place the Enemy s , Map, Tower and Bullet objects
     private Pane mapPane;
+    
+    //EnemyCreator object to create Enemy s of each waves
     private EnemyCreator enemyCreator;
+    
+    //an ArrayList that will store the current Enemy objects
     private ArrayList<Enemy> currentEnemies;
+    
+    //a Timeline object that every 16 milliseconds an Enemy shooting takes place
     private Timeline gameloop;
+    
+    //map1 object for level 1
     private map1 map1;
+    
+    //Tower objects created to shoot the enemies
+    private SingleShotTower sst;
+    private LaserTower lt;
+    private TripleShotTower tst;
+    private MissileLauncherTower mlt;
 
     @Override
     public void start(Stage primaryStage) {
+    	//i used borderPane for putting multiple elements into one single pane
+    	//also i thought the positioning of panes would be easier with borderPane since it already had borders set within it
         BorderPane mainPane = new BorderPane();
+        
+        //initializing mapPane
         mapPane = new Pane();
+        
+        //creating a vbox for tower buttons and UI elements
         VBox vbox = new VBox();
 
+        //initializing sst
         sst = new SingleShotTower();
+        
+        //initializing the map and adding it to the pane
         map1 = new map1();
         mapPane.getChildren().add(map1);
 
+        //creating button for SingleShotTower object
         Button singleShotButton = new Button();
+        //creating an imageView using TestSingleShotTowerImage class
         TestSingleShotTowerImage sstImage = new TestSingleShotTowerImage();
         sstImage.image();
         ImageView singleShotTowerImage = sstImage.getSingleShotTowerImage();
+        //adding the image to the button for SingleShotTower
         singleShotButton.setGraphic(singleShotTowerImage);
         singleShotButton.setPrefSize(100, 100);
         singleShotButton.setText("Single Shot Tower");
+        //placing the image on top of the text
         singleShotButton.setContentDisplay(ContentDisplay.TOP);
         vbox.getChildren().add(singleShotButton);
         
-        LaserTower lt = new LaserTower();
+        //initializing the LaserTower object
+        lt = new LaserTower();
+        //creating a button for the laserTower object
         Button laserTowerButton = new Button();
+        //creating an imageView using TestLaserShotTowerImage class
         TestLaserShotTowerImage ltImage = new TestLaserShotTowerImage();
         ltImage.image();
         ImageView laserTowerImage = ltImage.getLaserTowerImage();
+        //adding the image to the button for LaserTower
         laserTowerButton.setGraphic(laserTowerImage);
         laserTowerButton.setPrefSize(100, 100);
         laserTowerButton.setText("Laser Tower");
+        //placing the image on top of the text
         laserTowerButton.setContentDisplay(ContentDisplay.TOP);
         vbox.getChildren().add(laserTowerButton);
         
-        TripleShotTower tst = new TripleShotTower();
+        //initializing the TripleShotTower object
+        tst = new TripleShotTower();
+        //creating a button for the TripleShotTower object
         Button tripleShotButton = new Button();
+        //creating imageView object using TestTripleShotTowerImage class
         TestTripleShotTowerImage tstImage = new TestTripleShotTowerImage();
         tstImage.image();
         ImageView tripleShotTowerImage = tstImage.getTripleShotTowerImage();
+        //adding the image to the button for tripleShotTower
         tripleShotButton.setGraphic(tripleShotTowerImage);
         tripleShotButton.setPrefSize(100, 100);
         tripleShotButton.setText("Triple Shot Tower");
+        //placing the image on top of the text
         tripleShotButton.setContentDisplay(ContentDisplay.TOP);
         vbox.getChildren().add(tripleShotButton);
         
-        MissileLauncherTower mlt = new MissileLauncherTower(); 
+        //initializing the MissileLauncherTower object
+        mlt = new MissileLauncherTower(); 
+        //creating a button for the MissileLauncherTower object
         Button missileLauncherButton = new Button();
+        //creating imageView object using TestMissileLauncherTowerImage class
         TestMissileLauncherTowerImage mltImage = new TestMissileLauncherTowerImage();
         mltImage.image();
         ImageView missileLauncherTowerImage = mltImage.getMissileLauncherTowerImage();
+        //adding the image to the button for missileLauncherTower
         missileLauncherButton.setGraphic(missileLauncherTowerImage);
         missileLauncherButton.setPrefSize(100, 100);
         missileLauncherButton.setText("Missile Launcher Tower");
+        //placing the image on top of the text
         missileLauncherButton.setContentDisplay(ContentDisplay.TOP);
         vbox.getChildren().add(missileLauncherButton);
 
+        //Event Handler for singleShotButton 
+        //this eventhandler is used to drag and place the towers
+        //starting the eventhandler by pressing the mouse
         singleShotButton.setOnMousePressed(e -> {
+        	//creating a NEW imageView every time mouse is pressed
+        	//this way when the user clicks on the button multiple times, multiple singleShotTowers will be created on the position user clicks
             ImageView dragImage = new ImageView(singleShotTowerImage.getImage());
             dragImage.setFitWidth(singleShotTowerImage.getFitWidth());
             dragImage.setFitHeight(singleShotTowerImage.getFitHeight());
+            //the problem is, when button is clicked a image of singleShotTower is created and then it can be dragged and placed
+            //meaning it cannot dragged directly without clicking on it first : could not fix this
             dragImage.setX(e.getSceneX());
             dragImage.setY(e.getSceneY());
             mainPane.getChildren().add(dragImage);
 
+            //after the dragImage created, while it is being dragged the dragImage follows the cursor's position
             dragImage.setOnMouseDragged(event -> {
                 if (dragImage != null) {
                     dragImage.setX(event.getSceneX());
@@ -92,24 +144,35 @@ public class LevelOne extends Application {
                 }
             });
 
+            //if mouse is released, tower gets placed to the "appropriate tile"
+            //problem not fixed: i couldn't place the towers at the center of the tiles
             dragImage.setOnMouseReleased(event2 -> {
+            	//creating a localPoint and converting the scene coordinates into x and y coordinates that can be assigned to the cursor's position
                 Point2D localPoint = map1.sceneToLocal(event2.getSceneX(), event2.getSceneY());
                 double mouseX = localPoint.getX();
                 double mouseY = localPoint.getY();
+                //these x and y variables will be used to place the tower to it's final position, hence they are initialized just as tower image's coordinates
+                //but the initial values of x and y won't matter much since they will be changed according to the user's choice of position
                 double x = dragImage.getX();
                 double y = dragImage.getY();
 
+                //checking if the tile user picked is outside the path of map1 
+                //and if the chosen tile is outside the path, finding the specific tile user wants to place the tower on
                 for (int[] tile : map1.getOutOfPathPoints()) {
                     int row = tile[0];
                     int col = tile[1];
 
+                    //these variables were created to check the limits of tile that user placed the tower on
                     double tileRight = (col + 1) * map1.CELL_SIZE;
                     double tileLeft = col * map1.CELL_SIZE;
                     double tileTop = row * map1.CELL_SIZE;
                     double tileBottom = (row + 1) * map1.CELL_SIZE;
 
+                    //if the position user put the tower on is valid
+                    //assign the values to x and y
                     if (mouseX <= tileRight && mouseX >= tileLeft &&
                         mouseY >= tileTop && mouseY <= tileBottom) {
+                    	//in this part i tried to place the tower just at the middle of the matching tile -> might not have been successful at that:)
                         x = tileLeft + map1.CELL_SIZE / 2 - dragImage.getFitWidth() / 2;
                         y = tileTop + map1.CELL_SIZE / 2 - dragImage.getFitHeight() / 2;
                         isValidPlacement = isValidPlacement(sst, map1);
@@ -117,12 +180,17 @@ public class LevelOne extends Application {
                     }
                 }
 
-                if (isValidPlacement) {
+                //isValidPlacement is a boolean variable that takes the value from the method isValidPlacement() -> the method is more below
+                if (isValidPlacement)
+                {
                     dragImage.setX(x - dragImage.getFitWidth() / 2);
                     dragImage.setY(y - dragImage.getFitHeight() / 2);
-                    double[] temp = {dragImage.getX(), dragImage.getY()};
-                    gameLoop(5, 2.0, 1.0, 20, 0);
-                } else {
+                    //invoking gameLoop method after tower is placed to shoot the enemies
+                    gameLoop(5, 2.0, 1.0, 20, 0, sst);
+                } 
+                //if it is not a valid placement remove the image from the pane
+                else
+                {
                     mapPane.getChildren().remove(dragImage);
                 }
                 
@@ -131,7 +199,7 @@ public class LevelOne extends Application {
              
         });
 
-        
+      //same logic as singleShotTowerButton is used here
         laserTowerButton.setOnMousePressed(e -> {
             ImageView dragImage = new ImageView(laserTowerImage.getImage());
             dragImage.setFitWidth(laserTowerImage.getFitWidth());
@@ -175,8 +243,7 @@ public class LevelOne extends Application {
                 if (isValidPlacement) {
                     dragImage.setX(x - dragImage.getFitWidth() / 2);
                     dragImage.setY(y - dragImage.getFitHeight() / 2);
-                    double[] temp = {dragImage.getX(), dragImage.getY()};
-                    gameLoop(5, 2.0, 1.0, 20, 0);
+                    gameLoop(5, 2.0, 1.0, 20, 0, lt);
                 } else {
                     mapPane.getChildren().remove(dragImage);
                 }
@@ -186,7 +253,7 @@ public class LevelOne extends Application {
              
         });
         
-        
+      //same logic as singleShotTowerButton is used here
         tripleShotButton.setOnMousePressed(e -> {
             ImageView dragImage = new ImageView(tripleShotTowerImage.getImage());
             dragImage.setFitWidth(tripleShotTowerImage.getFitWidth());
@@ -230,8 +297,7 @@ public class LevelOne extends Application {
                 if (isValidPlacement) {
                     dragImage.setX(x - dragImage.getFitWidth() / 2);
                     dragImage.setY(y - dragImage.getFitHeight() / 2);
-                    double[] temp = {dragImage.getX(), dragImage.getY()};
-                    gameLoop(5, 2.0, 1.0, 20, 0);
+                    gameLoop(5, 2.0, 1.0, 20, 0, tst);
                 } else {
                     mapPane.getChildren().remove(dragImage);
                 }
@@ -242,7 +308,7 @@ public class LevelOne extends Application {
         });
         
         
-        
+      //same logic as singleShotTowerButton is used here
         missileLauncherButton.setOnMousePressed(e -> {
             ImageView dragImage = new ImageView(missileLauncherTowerImage.getImage());
             dragImage.setFitWidth(missileLauncherTowerImage.getFitWidth());
@@ -286,8 +352,7 @@ public class LevelOne extends Application {
                 if (isValidPlacement) {
                     dragImage.setX(x - dragImage.getFitWidth() / 2);
                     dragImage.setY(y - dragImage.getFitHeight() / 2);
-                    double[] temp = {dragImage.getX(), dragImage.getY()};
-                    gameLoop(5, 2.0, 1.0, 20, 0);
+                    gameLoop(5, 2.0, 1.0, 20, 0, mlt);
                 } else {
                     mapPane.getChildren().remove(dragImage);
                 }
@@ -297,6 +362,7 @@ public class LevelOne extends Application {
              
         });
         
+        //creating Enemy s for enemy waves
         enemyCreator = new EnemyCreator(map1);
         Timeline enemyAnimation = new Timeline(new KeyFrame(Duration.millis(16), e -> {
             for (Enemy enemy : enemyCreator.getActiveEnemies()) {
@@ -314,7 +380,9 @@ public class LevelOne extends Application {
         //gameLoop(5, 2.0, 1.0, 20, 0);  // Example values
         enemyCreator.startNextWave();
 
+        //setting the right of borderPane as the vbox of buttons
         mainPane.setRight(vbox);
+        //setting the center of borderPane as the mapPane that contains mapq, enemies and towers
         mainPane.setCenter(mapPane);
         Scene scene = new Scene(mainPane, 1000, 800);
         primaryStage.setScene(scene);
@@ -322,11 +390,13 @@ public class LevelOne extends Application {
         primaryStage.show();
     }
 
-    public void gameLoop(int enemyCount, double timeBetweenSpawns, double enemySpeed, int enemySize, int delayTime) {
+    // this method is created to shoot the enemies in range by invoking the findEnemy(ies) and shootEnemy(ies) methods of towers
+    public void gameLoop(int enemyCount, double timeBetweenSpawns, double enemySpeed, int enemySize, int delayTime, Tower tower) {
     	System.out.println("Inside gameLoop");
     	
+    	//creating a enemy wave 
         WaveDefinition wave = new WaveDefinition(enemyCount, timeBetweenSpawns, enemySpeed, enemySize, delayTime);
-        //currentEnemies = wave.getActiveEnemies();
+        //problem : giving Enemy objects hard-coded because every property invokation of wave returned NullPointerException
         ArrayList<int[]> pp1 = new ArrayList<>();
         ArrayList<int[]> pp2 = new ArrayList<>();
         ArrayList<int[]> pp3 = new ArrayList<>();
@@ -350,63 +420,105 @@ public class LevelOne extends Application {
         currentEnemies.add(enemy2);
         currentEnemies.add(enemy3);
         
+        //for every 16 milliseconds checking if there are enemies in range and if  there is shooting them with findEnemy(s) and shootEnemy(s) methods
         gameloop = new Timeline(new KeyFrame(Duration.millis(16), e -> {
         	
             if (currentEnemies != null) {
-                /*currentEnemies.removeIf(enemy -> {
+            	//remove any dead enemy(s) from the pane
+                currentEnemies.removeIf(enemy -> {
                    if (!enemy.isActive()) {
                         mapPane.getChildren().remove(enemy);
                         return true;
                     }
                     return false;
-                });*/
+                });
 
-                //System.out.println("inside Timeline");
+                //update the location of each enemy 
                 currentEnemies.forEach(enemy -> enemy.update(1));
 
-                /*if (currentEnemies.stream().allMatch(enemy -> !enemy.isActive() || enemy.hasReachedEnd()) || currentEnemies.isEmpty()) {
+                //if all enemies in currentEnemies is either dead or has reached end or currentEnemies is empty...
+                if (currentEnemies.stream().allMatch(enemy -> !enemy.isActive() || enemy.hasReachedEnd()) || currentEnemies.isEmpty()) 
+                {
+                	//if there is enemy wave left -> get the next wave
                     if (wave.getCurrentWave() < wave.getTotalWaves()) {
                         wave.startNextWave();
                         currentEnemies = wave.getActiveEnemies();
+                        //add every enemy in the currentEnemies to the pane
                         for (Enemy enemy : currentEnemies)
                             mapPane.getChildren().add(enemy);
-                    } else {
+                    } 
+                    else 
+                    {
                         System.out.println("All waves completed!");
                     }
-                } else {*/
-                    Enemy target = sst.findEnemy(currentEnemies);
-                    target = currentEnemies.get(0);
-                    if (target != null) {
-                        Node projectile = sst.shootEnemy(target);
-                        mapPane.getChildren().add(projectile);
-                        Circle targetCircle = new Circle(5, target.getX(), target.getY());
-                        mapPane.getChildren().add(targetCircle);
-                  }
-               // }
+                }
+                else 
+                {
+                	//checking which class tower is instance of and invoking that method
+                	//details about the methods findEnemy(s) and shootEnemy(s) are given in the tower classes
+                	if(tower instanceof SingleShotTower)
+                	{
+                        Enemy target = ((SingleShotTower)tower).findEnemy(currentEnemies);
+                        target = currentEnemies.get(0);
+                        if (target != null) {
+                            Node projectile = ((SingleShotTower)tower).shootEnemy(target);
+                            mapPane.getChildren().add(projectile);
+                            /*Circle targetCircle = new Circle( target.getX(), target.getY(), 5);
+                            mapPane.getChildren().add(targetCircle);*/
+                      }
+                	}
+                	else if(tower instanceof LaserTower)
+                	{
+                		ArrayList<Enemy> targets = new ArrayList<>();
+                		targets = ((LaserTower)tower).findEnemies(currentEnemies);
+                		if(targets != null)
+                		{
+                			List<Node> projectiles = new ArrayList<>();
+                			projectiles = ((LaserTower)tower).shootEnemies(targets);
+                			
+                			for(int i = 0; i < projectiles.size(); i++)
+                				mapPane.getChildren().add(projectiles.get(i));
+                		}
+                		
+                	}
+          
+                	else if(tower instanceof TripleShotTower)
+                	{
+                		ArrayList<Enemy> targets = new ArrayList<>();
+                		targets = ((TripleShotTower)tower).findEnemies(currentEnemies);
+                		if(targets != null)
+                		{
+                			List<Node> projectiles = new ArrayList<>();
+                			projectiles = ((TripleShotTower)tower).shootEnemies(targets);
+                			for(int i = 0; i < projectiles.size(); i++)
+                				mapPane.getChildren().add(projectiles.get(i));
+                		}
+                	}
+                	else if(tower instanceof MissileLauncherTower)
+                	{
+                		ArrayList<Enemy> targets = new ArrayList<>();
+                		targets = ((MissileLauncherTower)tower).findEnemies(currentEnemies);
+                		if(targets != null)
+                		{
+                			Node projectile = ((MissileLauncherTower)tower).shootEnemies(targets);
+                			mapPane.getChildren().add(projectile);                	}
+
+                }
             }
-        }));
+        }}));
 
         gameloop.setCycleCount(Timeline.INDEFINITE);
         gameloop.play();
     }
 
+    //checks whether tower has the valid conditions to be placed
     public boolean isValidPlacement(Tower tower, Maps map) {
-        GameLogic gameLogic = new GameLogic();
-        return gameLogic.getMoney() >= tower.getPrice() && gameLogic.getLives() > 0;
+    	//creating a gameLogic object to get money and lives properties
+    	GameLogic gameLogic = new GameLogic();
+    	return gameLogic.getMoney() >= tower.getPrice() && gameLogic.getLives() > 0;
+    	//problem : could not check if a tower object already exists on the user chosen tile because i always got NullPointerException 
     }
 
-    public Enemy findEnemy(List<Enemy> enemies) {
-        // Stub for finding the nearest or best enemy to shoot
-        return enemies.isEmpty() ? null : enemies.get(0);
-    }
-
-    public Node shootEnemy(Enemy target) {
-        // Stub for shooting logic
-        Circle projectile = new Circle(5, Color.RED);
-        projectile.setCenterX(target.getX());
-        projectile.setCenterY(target.getY());
-        return projectile;
-    }
 
     public static void main(String[] args) {
         launch(args);
