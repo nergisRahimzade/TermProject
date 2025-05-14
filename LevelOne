@@ -391,6 +391,8 @@ public class LevelOne extends Application {
     }
 
     // this method is created to shoot the enemies in range by invoking the findEnemy(ies) and shootEnemy(ies) methods of towers
+    //problem: could not solve the problem of positioning of health bars and shooting does not work
+    //after many hours of effort, i still could not solve the problem:(
     public void gameLoop(int enemyCount, double timeBetweenSpawns, double enemySpeed, int enemySize, int delayTime, Tower tower) {
     	System.out.println("Inside gameLoop");
     	
