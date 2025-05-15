@@ -1,6 +1,7 @@
 //Nergiz Rahimzade 150124055
-//This class belongs to Triple Shot Tower and it's related method(s)/constructor(s)
 
+//This class belongs to Laser Tower and contains it's related method(s)/constructor(s)/properties 
+//Details about methods are given above them and inside methods if needed
 import javafx.application.*;
 import javafx.stage.*;
 import javafx.util.Duration;
@@ -14,8 +15,8 @@ import javafx.geometry.*;
 import javafx.animation.*;
 import java.util.*;
 
-public class TripleShotTower extends Tower{
-	//coordinates of the tower
+public class LaserTower extends Tower{
+	//coordinate properties of towers
 	private double towerX;
 	private double towerY;
 	
@@ -25,48 +26,42 @@ public class TripleShotTower extends Tower{
 	//price of the tower
 	private int price;
 	
+	//an ArrayList that contains coordinates of placed towers
 	ArrayList<double[]> towerCoordinates;
 	
-	//default constructor with explicitly given default values
-	public TripleShotTower()
+	//a default constructor with given default values
+	public LaserTower() 
 	{
 		towerX = 0;
 		towerY = 0;
 		rangeRadius = 30;
-		price = 150;
+		price = 120;
 	}
 	
 	//a constructor which only takes the coordinate values as parameters
-    //you might have noticed that there are no allowance of changing the price and rangeRadius properties and as you move on you will also see that there are no 
-    //setter methods for price and rangeRadius properties, the reason is they do not need to be changed and they will have constant values
-	public TripleShotTower(double towerX, double towerY)
+	//you might have noticed that there are no allowance of changing the price and rangeRadius properties and as you move on you will also see that there are no 
+	//setter methods for price and rangeRadius properties, the reason is they do not need to be changed and they will have constant values
+	public LaserTower(double towerX, double towerY)
 	{
 		this.towerX = towerX;
 		this.towerY = towerY;
 		rangeRadius = 30;
-		price = 150;
+		price = 120;
 	}
 	
-	//this method returns 3 Enemys inside the range of the tower
-	//takes the current Enemy Wave as a parameter
+	
+	//this method returns an ArrayList of Enemies inside the range of the tower 
+	//it takes the enemy waves as ArrayList and finds the enemies inside range
 	public ArrayList<Enemy> findEnemies(ArrayList<Enemy> enemies)
 	{
 		ArrayList<Enemy> enemiesInRange = new ArrayList<>();
-		//variable count, counts the enemies inside the range
-		int count = 0;
 
 		for(int i = 0; i < enemies.size(); i++)
 		{
-			//for each Enemy in the wave, checks whether the enemies is inside the range by using the enemiesInRange() method inside the superclass
-			//and adds the first 3 enemies inside the range to enemiesInRange
 			if(isInRange(towerX, towerY,(Enemy)(enemies.get(i)), rangeRadius))
 			{
 				enemiesInRange.add(enemies.get(i));
-				count++;
 			}
-			
-			if(count == 3)
-				break;
 		}
 		
 		if(enemiesInRange.isEmpty())
@@ -76,71 +71,74 @@ public class TripleShotTower extends Tower{
 		
 	}
 	
-	//this method shoots the Enemys inside the range with Bullet animations
-	//takes the enemiesInRange ArrayList created in findEnemies as a parameter
+	//this method shoots the enemies within range with lasers and returns the Laser objects as a List in Node type,
+	//it takes the enemiesInRange from findEnemies method as an argument
+	// lasers are returned in Node type for them to be able to added to Pane
 	public List<Node> shootEnemies(ArrayList<Enemy> enemies)
 	{
 		GameLogic gameLogic = new GameLogic();
 		List<Node> list = new ArrayList<>();
-		double startX = towerX;
-		double startY = towerY;
+		
+		//Pane created to add the Laser objects and make them visible on Scene
 		Pane pane = new Pane();
 		
-		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		
+		//a Timeline object is created to make an animation of several or single Lasers being shot
+		Timeline laserTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
 		{
 			if(!enemies.isEmpty())
 			{
+				//if there are enemies inside range, change the endX and endY properties of laser
 				for(Enemy enemy : enemies)
 				{
-					double targetX = enemy.getX();
-					double targetY = enemy.getY();
-					Bullet bullet = new Bullet(startX, startY, targetX, targetY, 10);
-					pane.getChildren().add(bullet);
+
+					Laser laser = new Laser(towerX, towerY, enemy.getX(), enemy.getY());
 					
-					double dx = targetX - startX;
-					double dy = targetY - startY;
+					pane.getChildren().add(laser);
 					
-					double distance = Math.sqrt(dx * dx + dy *dy);
+					double dx = Math.abs(laser.getEndX() - enemy.getX());
+					double dy = Math.abs(laser.getEndY() - enemy.getY());
+					double distance = Math.sqrt(dx * dx + dy * dy);
 					
-					//if Enemy is in distance with threshold value and is alive, damage the enemy with magnitude 15 and add the bullet to the list (List<Node>)
+					//if enemy is alive and the distance between the Tower and Laser is less than the threshold value and enemy is not null ->
+					//give a damage of magnitude 5 and add the laser created to the ArrayList, also add the laser to the pane
+					//notice that the damage LaserTower gives is less than SingleShotTower
 					if(enemy.isActive() && distance < 5 && enemy != null)
 					{
-						enemy.damage(15);
+						enemy.damage(5);
 						gameLogic.updateInfo();
-						list.add(bullet);
-						for(Node node : list)
-							pane.getChildren().add(node); //maybe this for loop is not needed since we are already adding the Bullet to the pane before adding
-						                                  //it to the list ??? 
+						list.add(laser);
+						pane.getChildren().add(laser);
 						
-						//if Enemy is dead after shooting, remove the bullet from the pane so that it is not visible anymore, and use the explosionEffect
 						if(!enemy.isActive())
 						{
-							list.remove(bullet);
-							pane.getChildren().remove(bullet);
-							bullet.explosionEffect(bullet.getEndX(), bullet.getEndY());
+							list.remove(laser);
+							pane.getChildren().remove(laser);
+							laser.explosionEffect(laser.getEndX(), laser.getEndY());
 						}
 					}
 					
-					//If enemy is still alive but distance between the Bullet and the Enemy is more than or equal to threshold value
-					//it means the Bullet is still moving towards Enemy
-					else if(enemy.isActive())
+				/*	else if(enemy.isActive())
 					{
+
+						//not sure about this calculation
 						double vx = dx / distance;
 						double vy = dy / distance;
 						
 						double speed = 8;
-						bullet.setEndX(bullet.getEndX() + vx * speed); 
-						bullet.setEndY(bullet.getEndY() + vy * speed);
-					}
-					
+						laser.setEndX(laser.getEndX() + vx * speed); 
+						laser.setEndY(laser.getEndY() + vy * speed);
+					}*/
 				}
 			}
 			
+			
 		}));
 		
-		//playing the animation
-		bulletTimeline.setCycleCount(Timeline.INDEFINITE);
-		bulletTimeline.play();
+		
+		//play the animation
+		laserTimeline.setCycleCount(Timeline.INDEFINITE);
+		laserTimeline.play();
 		
 		return list;
 	}
@@ -151,18 +149,15 @@ public class TripleShotTower extends Tower{
 	public void gameloop(int enemyCount, double timeBetweenSpawns, 
 			double enemySpeed, int enemySize, int delayTime)
 	{
+		WaveDefinition wave = new WaveDefinition(enemyCount, timeBetweenSpawns, enemySpeed, enemySize, delayTime);
+		Pane gamePane = new Pane();
+		
 		Timeline gameloop = new Timeline(new KeyFrame(Duration.millis(16), event ->
 		{
-			WaveDefinition wave = new WaveDefinition(enemyCount, timeBetweenSpawns, enemySpeed, enemySize, delayTime);
-			Pane gamePane = new Pane();
-			
-			wave.startNextWave();
-			enemies = wave.getActiveEnemies();
-			enemies.forEach(eachEnemy -> gamePane.getChildren().add(eachEnemy));
+			enemies = wave.getActiveEnemies();		
 			
 			if(enemies != null)
 			{
-				
 				//removes the enemy both from the ArrayList and the pane if it is not alive
 				for(Enemy currentEnemy : enemies)
 				{
@@ -174,50 +169,58 @@ public class TripleShotTower extends Tower{
 				}
 				enemies.forEach(currentEnemy -> currentEnemy.update(1));
 				
-				//adding the updated enemies to the pane
-				//???Would adding enemies twice create a problem inside Pane???
-				for(Enemy enemyUpdated : enemies)
+				//adding the updated versions of Enemys
+				for(Enemy eachEnemy : enemies)
 				{
-					gamePane.getChildren().add(enemyUpdated);
+					gamePane.getChildren().add(eachEnemy);
 				}
 				
-
-				//if all Enemy s is either dead or has reached end or enemies is e ->
-				//get the next wave and if there is a Enemy Wave left ->
-				//add the Enemy s of next wave to the pane
-				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()))// && the user still has enough lives
+				//if all Enemys inside enemies ArrayList is either dead or has reached end -> if there are still some waves left 
+				//-> give the next Enemy wave
+				if(enemies.stream().allMatch(e -> !e.isActive() || e.hasReachedEnd()) || enemies.isEmpty()) // && the user has still life
 				{
 					if(wave.getCurrentWave() < wave.getTotalWaves())
 					{
 						wave.startNextWave();
 						enemies = wave.getActiveEnemies();
+						for(Enemy eachEnemy : enemies)
+						{
+							gamePane.getChildren().add(eachEnemy);
+						}
 					}
-					
+						
 					else
 						System.out.println("All waves completed!");
 				}
 				
-				//if there are some still alive enemies left or some enemies has not reached the end, find the 3 closest enemies and shoot them
-				//also add the shootings to the pane
+				//if there are some Enemys either alive or hasn't reached the end -> find the closest Enemys with findEnemies method
+				//-> pass the ArrayList as an parameter to the shootEnemies method to shoot the enemies
 				else
 				{
-					ArrayList<Enemy> currentEnemies = findEnemies(enemies);
-					if(currentEnemies != null)
+					ArrayList<Enemy> enemiesInRange = findEnemies(enemies);
+					if(enemiesInRange != null)
 					{
-						List<Node> projectile = shootEnemies(currentEnemies);
-						projectile.forEach(node -> gamePane.getChildren().add(node));
+						List<Node> projectile = shootEnemies(enemiesInRange);
+						for(Node node : projectile)
+							gamePane.getChildren().add(node);
 					}
+					
 				}
 			}
-			
-			
+				
+				
 		}));
 		
+		//play the animation
 		gameloop.setCycleCount(Timeline.INDEFINITE);
 		gameloop.play();
+
 	}
 	
-	public boolean isValidPlacement(TripleShotTower tower, ArrayList<double[]> coord)
+	
+	
+			
+	public boolean isValidPlacement(LaserTower tower, ArrayList<double[]> coord)
 	{
 		GameLogic gameLogic = new GameLogic();
 		
@@ -236,8 +239,7 @@ public class TripleShotTower extends Tower{
 		
 	}
 	
-	
-	
+	//General getter and setter methods
 	public double getX() {
 		return towerX;
 	}
@@ -272,10 +274,12 @@ public class TripleShotTower extends Tower{
 	{
 		return towerCoordinates;
 	}
+
 	public void addTowerCoordinates(double[] coord)
 	{
 		towerCoordinates.add(coord);
 	}
 	
+
 
 }
