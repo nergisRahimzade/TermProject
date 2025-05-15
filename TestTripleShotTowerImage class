@@ -20,16 +20,16 @@ public class TestTripleShotTowerImage extends Group{
 
 	public void image()
 	{
-		Rectangle mainRec = new Rectangle(90, 50, 40, 90);
+		Rectangle mainRec = new Rectangle(0, 0, 20, 30);
 		mainRec.setFill(Color.BISQUE);
 		
-		Rectangle mainSideRecLarge = new Rectangle(30, 90);
+		Rectangle mainSideRecLarge = new Rectangle(10, 30);
 		mainSideRecLarge.setFill(Color.BROWN);
 		mainSideRecLarge.xProperty().bind(mainRec.xProperty().add(mainRec.getWidth()));
 		mainSideRecLarge.yProperty().bind(mainRec.yProperty());
 		
-		double widthMiniSq = 7;
-		double widthMiniSideRec = 3;
+		double widthMiniSq = 4;
+		double widthMiniSideRec = 2;
 		double gap = (mainRec.getWidth() + mainSideRecLarge.getWidth() - 4 * (widthMiniSq + widthMiniSideRec)) / 3;
 		
 		Rectangle miniSq1 = new Rectangle(widthMiniSq, widthMiniSq);
@@ -72,8 +72,8 @@ public class TestTripleShotTowerImage extends Group{
 		miniSideRec4.yProperty().bind(miniSq4.yProperty());
 		miniSideRec4.setFill(Color.BROWN);
 		
-		double doorWidth = 17;
-		double doorHeight = 30;
+		double doorWidth = 6;
+		double doorHeight = 12;
 		double doorGap = (mainRec.getHeight() - 2 * doorHeight) / 2;
 		
 		Rectangle doorRec1 = new Rectangle(doorWidth, doorHeight);
