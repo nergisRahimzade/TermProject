@@ -52,14 +52,7 @@ public abstract class Tower extends Group{
 		else
 			return false;
 	}
-	
-	//checks whether a tower already exists on the point user wants to insert tower
-	public boolean towerExists()
-	{
-		return false;
-	}
 
-	
 	//General getter and setter methods for private properties
 	public double getX() {
 		return towerX;
