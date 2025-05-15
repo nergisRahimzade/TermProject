@@ -220,24 +220,7 @@ public class LaserTower extends Tower{
 	
 	
 			
-	public boolean isValidPlacement(LaserTower tower, ArrayList<double[]> coord)
-	{
-		GameLogic gameLogic = new GameLogic();
-		
-		for(int i = 0; i < coord.size(); i++)
-		{
-			double x = (coord.get(i))[0];
-			double y = (coord.get(i))[0];
-			
-			if(tower.getX() != x && tower.getY() != y 
-					&& gameLogic.getMoney() >= tower.price && gameLogic.getLives() > 0)
-				return true;
-			
-		}
-		
-		return false;
-		
-	}
+
 	
 	//General getter and setter methods
 	public double getX() {
