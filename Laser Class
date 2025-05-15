@@ -46,35 +46,35 @@ public class Laser extends Group{
 	
 	//if the Enemy dies this method will be invoked
 	//this is the same effect explosion of bullet
-	public void explosionEffect(double laserEndX, double bulletEndY)
+	public void explosionEffect(double laserEndX, double laserEndY)
 	{
 		//A different path transition is created for each circle (- explosion effect -)
 		//the reason why a loop is not used is because for each circle i created a different Line path and if i used a loop i would have had to use the same line
 		//also the Line paths are not organized, meaning they are at unrelated places; this is another reason why a loop was not used
         ArrayList<Circle> circles = new ArrayList<>();
 		
-		Circle circle1 = new Circle(laserEndX, bulletEndY, 7);
+		Circle circle1 = new Circle(laserEndX, laserEndY, 7);
 		circle1.setFill( Color.rgb(255, 102, 102));
 		circles.add(circle1);
 		
-		Circle circle2 = new Circle(laserEndX, bulletEndY, 7);
+		Circle circle2 = new Circle(laserEndX, laserEndY, 7);
 		circle2.setFill( Color.GREEN);
 		circles.add(circle2);
 		
-		Circle circle3 = new Circle(laserEndX, bulletEndY, 7);
+		Circle circle3 = new Circle(laserEndX, laserEndY, 7);
 		circle3.setFill( Color.BLUE);
 		circles.add(circle3);
 		
-		Circle circle4 = new Circle(laserEndX, bulletEndY, 7);
+		Circle circle4 = new Circle(laserEndX, laserEndY, 7);
 		circle4.setFill( Color.ORANGE);
 		circles.add(circle4);
 		
-		Circle circle5 = new Circle(laserEndX, bulletEndY, 7);
+		Circle circle5 = new Circle(laserEndX, laserEndY, 7);
 		circle5.setFill( Color.YELLOW);
 		circles.add(circle5);
 		
 		PathTransition pathTransition1 = new PathTransition();
-		Line line1 = new Line(laserEndX, bulletEndY, laserEndX + 20, bulletEndY + 15);
+		Line line1 = new Line(laserEndX, laserEndY, laserEndX + 20, laserEndY + 15);
 		pathTransition1.setNode(circle1);
 		pathTransition1.setPath(line1);
 		pathTransition1.setCycleCount(1);
@@ -88,7 +88,7 @@ public class Laser extends Group{
 		
 		
 		PathTransition pathTransition2 = new PathTransition();
-		Line line2 = new Line(laserEndX, bulletEndY, laserEndX + 10, bulletEndY - 8);
+		Line line2 = new Line(laserEndX, laserEndY, laserEndX + 10, laserEndY - 8);
 		pathTransition2.setNode(circle2);
 		pathTransition2.setPath(line2);
 		pathTransition2.setCycleCount(1);
@@ -102,7 +102,7 @@ public class Laser extends Group{
 		
 		
 		PathTransition pathTransition3 = new PathTransition();
-		Line line3 = new Line(laserEndX, bulletEndY, laserEndX, bulletEndY - 17);
+		Line line3 = new Line(laserEndX, laserEndY, laserEndX, laserEndY - 17);
 		pathTransition3.setNode(circle3);
 		pathTransition3.setPath(line3);
 		pathTransition3.setCycleCount(1);
@@ -116,7 +116,7 @@ public class Laser extends Group{
 		
 		
 		PathTransition pathTransition4 = new PathTransition();
-		Line line4 = new Line(laserEndX, bulletEndY, laserEndX - 19, bulletEndY - 13);
+		Line line4 = new Line(laserEndX, laserEndY, laserEndX - 19, laserEndY - 13);
 		pathTransition4.setNode(circle4);
 		pathTransition4.setPath(line4);
 		pathTransition4.setCycleCount(1);
@@ -130,7 +130,7 @@ public class Laser extends Group{
 		
 		
 		PathTransition pathTransition5 = new PathTransition();
-		Line line5 = new Line(laserEndX, bulletEndY, laserEndX - 10, bulletEndY + 17);
+		Line line5 = new Line(laserEndX, laserEndY, laserEndX - 10, laserEndY + 17);
 		pathTransition5.setNode(circle5);
 		pathTransition5.setPath(line5);
 		pathTransition5.setCycleCount(1);
