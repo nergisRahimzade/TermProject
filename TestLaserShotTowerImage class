@@ -21,16 +21,16 @@ public class TestLaserShotTowerImage extends Group{
 	{
 		Pane pane = new Pane();
 		
-		Rectangle mainRec = new Rectangle(90, 50, 30, 90);
+		Rectangle mainRec = new Rectangle(0, 0, 15, 30);
 		mainRec.setFill(Color.BISQUE);
 		
-		Rectangle mainSideRecLarge = new Rectangle(20, 90);
+		Rectangle mainSideRecLarge = new Rectangle(10, 30);
 		mainSideRecLarge.setFill(Color.BROWN);
 		mainSideRecLarge.xProperty().bind(mainRec.xProperty().add(mainRec.getWidth()));
 		mainSideRecLarge.yProperty().bind(mainRec.yProperty());
 		
-		double widthMiniSq = 7;
-		double widthMiniSideRec = 3;
+		double widthMiniSq = 4;
+		double widthMiniSideRec = 2;
 		double gap = (mainRec.getWidth() + mainSideRecLarge.getWidth() - 4 * (widthMiniSq + widthMiniSideRec)) / 3;
 		
 		Rectangle miniSq1_1 = new Rectangle(widthMiniSq, widthMiniSq);
@@ -73,8 +73,8 @@ public class TestLaserShotTowerImage extends Group{
 		miniSideRec4_1.yProperty().bind(miniSq4_1.yProperty());
 		miniSideRec4_1.setFill(Color.BROWN);
 		
-		double doorWidth = 17;
-		double doorHeight = 30;
+		double doorWidth = 6;
+		double doorHeight = 12;
 		double doorGap = (mainRec.getWidth() - 2 * doorHeight) / 2;
 		
 		Rectangle doorRec1_1 = new Rectangle(doorWidth, doorHeight);
@@ -90,12 +90,12 @@ public class TestLaserShotTowerImage extends Group{
 		pane.getChildren().addAll(mainRec, mainSideRecLarge, miniSq1_1, miniSq2_1, miniSq3_1, miniSq4_1, miniSideRec1_1, miniSideRec2_1, miniSideRec3_1, miniSideRec4_1, doorRec1_1, doorRec2_1);
 		
 		
-		Rectangle mainSq = new Rectangle(60, 60);
-		mainSq.xProperty().bind(mainRec.xProperty().subtract(((mainSq.getWidth() + 20) - (mainRec.getWidth() + mainSideRecLarge.getWidth())) / 2));
+		Rectangle mainSq = new Rectangle(20, 20);
+		mainSq.xProperty().bind(mainRec.xProperty().subtract(((mainSq.getWidth() + 10) - (mainRec.getWidth() + mainSideRecLarge.getWidth())) / 2));
 		mainSq.yProperty().bind(mainRec.yProperty().add(mainRec.getHeight() - mainSq.getHeight()));
 		mainSq.setFill(Color.BISQUE);
 		
-		Rectangle mainSideRecMid = new Rectangle(20, 60);
+		Rectangle mainSideRecMid = new Rectangle(10, 20);
 		mainSideRecMid.setFill(Color.BROWN);
 		mainSideRecMid.xProperty().bind(mainSq.xProperty().add(mainSq.getWidth()));
 		mainSideRecMid.yProperty().bind(mainSq.yProperty());
