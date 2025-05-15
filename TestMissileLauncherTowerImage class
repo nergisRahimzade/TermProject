@@ -20,16 +20,16 @@ public class TestMissileLauncherTowerImage extends Group{
 	{
 		Pane pane = new Pane();
 		
-		Rectangle mainRec = new Rectangle(90, 50, 40, 90);
+		Rectangle mainRec = new Rectangle(0, 0, 20, 30);
 		mainRec.setFill(Color.BISQUE);
 		
-		Rectangle mainSideRecLarge = new Rectangle(30, 90);
+		Rectangle mainSideRecLarge = new Rectangle(10, 30);
 		mainSideRecLarge.setFill(Color.BROWN);
 		mainSideRecLarge.xProperty().bind(mainRec.xProperty().add(mainRec.getWidth()));
 		mainSideRecLarge.yProperty().bind(mainRec.yProperty());
 		
-		double widthMiniSq = 7;
-		double widthMiniSideRec = 3;
+		double widthMiniSq = 4;
+		double widthMiniSideRec = 2;
 		double gap = (mainRec.getWidth() + mainSideRecLarge.getWidth() - 4 * (widthMiniSq + widthMiniSideRec)) / 3;
 		
 		Rectangle miniSq1_1 = new Rectangle(widthMiniSq, widthMiniSq);
@@ -72,8 +72,8 @@ public class TestMissileLauncherTowerImage extends Group{
 		miniSideRec4_1.yProperty().bind(miniSq4_1.yProperty());
 		miniSideRec4_1.setFill(Color.BROWN);
 		
-		double doorWidth = 17;
-		double doorHeight = 30;
+		double doorWidth = 6;
+		double doorHeight = 12;
 		double doorGap = (mainRec.getHeight() - 2 * doorHeight) / 2;
 		
 		Rectangle doorRec1_1 = new Rectangle(doorWidth, doorHeight);
@@ -88,25 +88,25 @@ public class TestMissileLauncherTowerImage extends Group{
 		
 		pane.getChildren().addAll(mainRec, mainSideRecLarge, miniSq1_1, miniSq2_1, miniSq3_1, miniSq4_1, miniSideRec1_1, miniSideRec2_1, miniSideRec3_1, miniSideRec4_1, doorRec1_1, doorRec2_1);
 		
-		Rectangle middleRec = new Rectangle(40, 50);
+		Rectangle middleRec = new Rectangle(13, 18);
 		middleRec.xProperty().bind(mainRec.xProperty().add(mainRec.getWidth()));
 		middleRec.yProperty().bind(mainRec.yProperty().add(mainRec.getHeight() - middleRec.getHeight()));
 		middleRec.setFill(Color.BISQUE);
 		
-		double gap2 = (middleRec.getWidth() - 15) / 2;
-		Rectangle middleRec_doorRec = new Rectangle(15, 25);
+		double gap2 = (middleRec.getWidth() - 8) / 2;
+		Rectangle middleRec_doorRec = new Rectangle(6, 9);
 		middleRec_doorRec.xProperty().bind(middleRec.xProperty().add(gap2));
 		middleRec_doorRec.yProperty().bind(middleRec.yProperty().add(middleRec.getHeight() - middleRec_doorRec.getHeight()));
 		middleRec_doorRec.setFill(Color.BROWN);
 		
 		pane.getChildren().addAll(middleRec, middleRec_doorRec);
 		
-		Rectangle mainRec2 = new Rectangle(40, 90);
+		Rectangle mainRec2 = new Rectangle(20, 30);
 		mainRec2.xProperty().bind(middleRec.xProperty().add(middleRec.getWidth()));
 		mainRec2.yProperty().bind(mainRec.yProperty());
 		mainRec2.setFill(Color.BISQUE);
 		
-		Rectangle mainSideRecLarge2 = new Rectangle(30, 90);
+		Rectangle mainSideRecLarge2 = new Rectangle(10, 30);
 		mainSideRecLarge2.setFill(Color.BROWN);
 		mainSideRecLarge2.xProperty().bind(mainRec2.xProperty().add(mainRec2.getWidth()));
 		mainSideRecLarge2.yProperty().bind(mainRec2.yProperty());
