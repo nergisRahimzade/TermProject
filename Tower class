@@ -39,15 +39,7 @@ public abstract class Tower extends Group{
 		
 	}
 	
-	public boolean isValidPlacement(double x, double y)
-	{
-		//if there is already a Tower placed on that tile, return false - use getTowerCoordinates() for this
-		//if user has enough money, return true;
-		//if user has enough lives, return true;
-		//
-		return true;
-	}
-	
+
 	//checks whether the enemy is in range of tower, if it is returns true; if not returns false
 	public boolean isInRange(double towerX, double towerY, Enemy enemy, double radius)
 	{
