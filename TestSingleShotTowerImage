@@ -17,10 +17,10 @@ public class TestSingleShotTowerImage extends Group{
 	
 	public void image()
 	{
-		Rectangle mainSq = new Rectangle(0, 0, 30, 30);
+		Rectangle mainSq = new Rectangle(0, 0, 20, 20);
 		mainSq.setFill(Color.BISQUE);
 		
-		Rectangle mainSideRecMid = new Rectangle(10, 30);
+		Rectangle mainSideRecMid = new Rectangle(10, 20);
 		mainSideRecMid.setFill(Color.BROWN);
 		mainSideRecMid.xProperty().bind(mainSq.xProperty().add(mainSq.getWidth()));
 		mainSideRecMid.yProperty().bind(mainSq.yProperty());
