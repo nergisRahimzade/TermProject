@@ -30,6 +30,8 @@ public class LevelOne extends Application {
     
     //a Timeline object that every 16 milliseconds an Enemy shooting takes place
     private Timeline gameloop;
+    private Timeline update;
+    private Timeline enemyAnimation;
     
     //map1 object for level 1
     private map1 map1;
@@ -45,20 +47,50 @@ public class LevelOne extends Application {
     	//i used borderPane for putting multiple elements into one single pane
     	//also i thought the positioning of panes would be easier with borderPane since it already had borders set within it
         BorderPane mainPane = new BorderPane();
-        
-        //initializing mapPane
+        // Initialize mapPane with padding
         mapPane = new Pane();
+        mapPane.setPadding(new Insets(20));
+        mapPane.setPickOnBounds(true); // Enable mouse events on the pane
         
-        //creating a vbox for tower buttons and UI elements
-        VBox vbox = new VBox();
+        // Create a VBox for tower buttons and UI elements with proper spacing
+        VBox vbox = new VBox(10); // 10 pixels spacing between elements
+        vbox.setPadding(new Insets(20));
+        vbox.setStyle("-fx-background-color: #f0f0f0;"); // Light gray background
+        
+        // Add game info at the top of the vbox
+        GameLogic gameLogic = new GameLogic();
+        Label livesLabel = new Label("Lives: " + gameLogic.getLives());
+        Label moneyLabel = new Label("Money: $" + gameLogic.getMoney());
+        Label waveLabel = new Label("Wave: 1");
+        vbox.getChildren().addAll(livesLabel, moneyLabel, waveLabel);
+        
+        // Add a separator
+        Separator separator = new Separator();
+        vbox.getChildren().add(separator);
+        
+        // Initialize the map and add it to the mapPane
+        map1 = new map1();
+        mapPane.getChildren().add(map1);
+        
+        // Add the mapPane to the mainPane
+        mainPane.setCenter(mapPane);
+        
+        // Add the vbox to the right of mainPane
+        mainPane.setRight(vbox);
+        
+        // Create the scene with a larger size
+        Scene scene = new Scene(mainPane, 1200, 800);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Tower Defense - Level 1");
+        primaryStage.show();
 
+        // Initialize EnemyCreator with the map
+        enemyCreator = new EnemyCreator(map1);
+        mapPane.getChildren().add(enemyCreator);
+        
         //initializing sst
         sst = new SingleShotTower();
         
-        //initializing the map and adding it to the pane
-        map1 = new map1();
-        mapPane.getChildren().add(map1);
-
         //creating button for SingleShotTower object
         Button singleShotButton = new Button();
         //creating an imageView using TestSingleShotTowerImage class
@@ -363,8 +395,7 @@ public class LevelOne extends Application {
         });
         
         //creating Enemy s for enemy waves
-        enemyCreator = new EnemyCreator(map1);
-        Timeline enemyAnimation = new Timeline(new KeyFrame(Duration.millis(16), e -> {
+        enemyAnimation = new Timeline(new KeyFrame(Duration.millis(16), e -> {
             for (Enemy enemy : enemyCreator.getActiveEnemies()) {
                 if (!mapPane.getChildren().contains(enemy)) {
                     mapPane.getChildren().add(enemy);
@@ -372,6 +403,41 @@ public class LevelOne extends Application {
                 enemy.update(1);
             }
             enemyCreator.update(0.016);
+            
+            // Check if all enemies have reached the end
+            boolean allEnemiesReachedEnd = true;
+            for (Enemy enemy : enemyCreator.getActiveEnemies()) {
+                if (!enemy.hasReachedEnd()) {
+                    allEnemiesReachedEnd = false;
+                    break;
+                }
+            }
+            
+            // If all enemies reached end and no more waves, transition to next level
+            if (allEnemiesReachedEnd && enemyCreator.getCurrentWave() >= enemyCreator.getTotalWaves()) {
+                // Transition to next level
+                if (this instanceof LevelOne) {
+                    // Stop current animations
+                    enemyAnimation.stop();
+                    if (gameloop != null) {
+                        gameloop.stop();
+                    }
+                    if (update != null) {
+                        update.stop();
+                    }
+                    
+                    // Clear current scene
+                    mapPane.getChildren().clear();
+                    
+                    // Create and start next level
+                    LevelTwo levelTwo = new LevelTwo();
+                    try {
+                        levelTwo.start(primaryStage);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
         }));
         enemyAnimation.setCycleCount(Timeline.INDEFINITE);
 
@@ -380,14 +446,14 @@ public class LevelOne extends Application {
         //gameLoop(5, 2.0, 1.0, 20, 0);  // Example values
         enemyCreator.startNextWave();
 
-        //setting the right of borderPane as the vbox of buttons
-        mainPane.setRight(vbox);
-        //setting the center of borderPane as the mapPane that contains mapq, enemies and towers
-        mainPane.setCenter(mapPane);
-        Scene scene = new Scene(mainPane, 1000, 800);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("LEVEL 1");
-        primaryStage.show();
+        // Update UI labels every frame
+        update = new Timeline(new KeyFrame(Duration.millis(16), e -> {
+            livesLabel.setText("Lives: " + gameLogic.getLives());
+            moneyLabel.setText("Money: $" + gameLogic.getMoney());
+            waveLabel.setText("Wave: " + enemyCreator.getCurrentWave());
+        }));
+        update.setCycleCount(Timeline.INDEFINITE);
+        update.play();
     }
 
     // this method is created to shoot the enemies in range by invoking the findEnemy(ies) and shootEnemy(ies) methods of towers
