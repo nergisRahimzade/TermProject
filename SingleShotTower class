@@ -115,36 +115,36 @@ public class SingleShotTower extends Tower{
 		//creating a bullet object for Single Shot Tower
 		Bullet bullet = new Bullet(startX, startY, targetX, targetY, 0);
 		
-		//creating a pane for nodes
-		Pane pane = new Pane();
+		Timeline bulletTimeline = new Timeline();
 		
-		pane.getChildren().addAll(bullet);
-		
-		Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(16), e ->
+		KeyFrame keyFrame = new KeyFrame(Duration.millis(16), e ->
 		{
+			if(enemy == null || !enemy.isActive())
+			{
+				bulletTimeline.stop();
+				return;
+			}
+			
 			double dx = targetX - bullet.getEndX();
 			double dy = targetY - bullet.getEndY();
 			double distance = Math.sqrt(dx * dx + dy * dy);
 			
 			//if the bullet hits the enemy (5 is the number of pixels of threshold/offset) and the enemy is alive - we already gave the Enemy parameter that is
 			//in range of tower -, give a damage magnitude 10 to the enemy
-			if(distance < 5 && enemy != null && enemy.isActive())
+			if(distance < 5)
 			{
 					enemy.damage(10);
 					gameLogic.updateInfo();
-					//bulletTimeline.stop(); //?? why are we stopping the bulletTimeline
+					bulletTimeline.stop(); 
 					
 					//if Enemy is dead after shooting remove the bullet from the pane so that it is not visible anymore and use the explosionEffect
 					if(!enemy.isActive())
 					{
-						pane.getChildren().remove(bullet);
 						bullet.explosionEffect(bullet.getEndX(), bullet.getEndY());
 					}
 			}
 			
-			//if bullet's distance to the enemy is more than or equal to 5 and it is still alive, that means bullet is still on its' way towards the enemy
-			//so we move the bullet using a little math
-			else if(enemy.isActive())
+			else
 			{
 				double vx = dx / distance;
 				double vy = dy / distance;
@@ -152,15 +152,10 @@ public class SingleShotTower extends Tower{
 				double speed = 8;
 				bullet.setEndX(bullet.getEndX() + vx * speed); 
 				bullet.setEndY(bullet.getEndY() + vy * speed); 
-				
 			}
-			else
-			{
-				pane.getChildren().remove(bullet);
-			}
-		}));
+		});
 		
-		
+		bulletTimeline.getKeyFrames().add(keyFrame);
 		bulletTimeline.setCycleCount(Timeline.INDEFINITE);
 		bulletTimeline.play();
 		
